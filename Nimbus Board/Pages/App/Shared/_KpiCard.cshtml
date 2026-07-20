@@ -1,0 +1,8 @@
+@model Nimbus_Board.Pages.App.Shared.KpiCardModel
+<div class="rounded-2xl border border-slate-100 @Model.BackgroundClass p-5 shadow-sm">
+    <div class="mb-3 flex items-center justify-between">
+        <span class="text-2xl">@Model.Icon</span>
+    </div>
+    <p class="text-sm font-medium text-slate-600">@Model.Label</p>
+    <p class="mt-1 text-3xl font-bold text-slate-900">@Model.Value</p>
+</div>

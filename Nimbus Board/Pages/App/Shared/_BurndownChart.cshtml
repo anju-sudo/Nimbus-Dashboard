@@ -1,0 +1,9 @@
+@model NimbusBoard.Application.Dashboard.Models.BurndownChartViewModel
+<div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+    <h2 class="mb-4 text-lg font-semibold text-slate-900">Burndown</h2>
+    <div class="mb-3 flex items-center gap-4 text-xs text-slate-500">
+        <span class="flex items-center gap-2"><span class="h-0.5 w-6 bg-indigo-500"></span> Actual</span>
+        <span class="flex items-center gap-2"><span class="h-0.5 w-6 border-t border-dashed border-slate-400"></span> Ideal</span>
+    </div>
+    <canvas id="burndown-chart" height="180"></canvas>
+</div>

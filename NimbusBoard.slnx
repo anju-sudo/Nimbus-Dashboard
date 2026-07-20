@@ -1,3 +1,6 @@
 <Solution>
   <Project Path="Nimbus Board/Nimbus Board.csproj" />
+  <Project Path="src/NimbusBoard.Domain/NimbusBoard.Domain.csproj" />
+  <Project Path="src/NimbusBoard.Application/NimbusBoard.Application.csproj" />
+  <Project Path="src/NimbusBoard.Infrastructure/NimbusBoard.Infrastructure.csproj" />
 </Solution>
