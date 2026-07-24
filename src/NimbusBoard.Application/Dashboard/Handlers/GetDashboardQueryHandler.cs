@@ -48,7 +48,7 @@ public class GetDashboardQueryHandler(INimbusBoardDbContext db, IBurndownService
         var urgentTasks = issues
             .Where(i => i.Priority >= IssuePriority.High && i.Status != IssueStatus.Done)
             .OrderBy(i => i.DueDate ?? DateTime.MaxValue)
-            .Take(4)
+            .Take(3)
             .Select(MapUrgentTask)
             .ToList();
 

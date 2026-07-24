@@ -1,13 +1,9 @@
 @model NimbusBoard.Application.Dashboard.Models.UrgentTaskViewModel
-<div class="flex flex-col gap-3 rounded-xl border border-slate-100 px-4 py-3 sm:flex-row sm:items-center">
-    <div class="flex min-w-0 flex-1 items-center gap-3">
-        <span class="h-2.5 w-2.5 shrink-0 rounded-full @Model.StatusDotClass"></span>
-        <span class="shrink-0 text-sm font-semibold text-indigo-600">@Model.Key</span>
-        <span class="truncate text-sm text-slate-800">@Model.Title</span>
-    </div>
-    <div class="flex items-center gap-3 sm:shrink-0">
-        <span class="rounded-full px-2.5 py-1 text-xs font-medium @Model.PriorityClass">@Model.Priority</span>
-        <span class="text-xs text-slate-500">@Model.DueLabel</span>
-        <span class="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold @Model.AssigneeClass">@Model.AssigneeInitials</span>
-    </div>
+<div class="flex items-center gap-2 rounded-lg border border-slate-100 px-3 py-2">
+    <span class="h-2 w-2 shrink-0 rounded-full @Model.StatusDotClass"></span>
+    <span class="shrink-0 text-xs font-semibold text-indigo-600">@Model.Key</span>
+    <span class="min-w-0 flex-1 truncate text-xs text-slate-800">@Model.Title</span>
+    <span class="hidden shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium sm:inline @Model.PriorityClass">@Model.Priority</span>
+    <span class="shrink-0 text-[10px] text-slate-500">@Model.DueLabel</span>
+    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold @Model.AssigneeClass">@Model.AssigneeInitials</span>
 </div>

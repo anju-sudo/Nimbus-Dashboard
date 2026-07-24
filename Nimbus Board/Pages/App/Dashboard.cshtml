@@ -5,14 +5,21 @@
     var vm = Model.ViewModel;
 }
 
-<div class="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+<div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
     <div>
-        <h1 class="text-2xl font-bold text-slate-900">Good morning, @vm.UserName</h1>
-        <p class="text-sm text-slate-500">@vm.Today.ToString("dddd, d MMMM")</p>
+        <h1 class="text-xl font-bold text-slate-900">Good morning, @vm.UserName</h1>
+        <p class="text-xs text-slate-500">@vm.Today.ToString("dddd, d MMMM")</p>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex flex-wrap items-center gap-2">
+        @foreach (var board in vm.BoardLinks)
+        {
+            <a href="/app/boards/@board.Id"
+               class="hidden rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 xl:inline-flex">
+                @board.Name
+            </a>
+        }
         <button type="button" onclick="window.nimbusOpenSearch()"
-                class="hidden w-full max-w-xs items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-400 shadow-sm lg:flex lg:w-72">
+                class="hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-400 shadow-sm lg:flex lg:w-56">
             <span>Search...</span>
             <span class="ml-auto rounded border border-slate-200 px-1.5 text-xs text-slate-400">⌘K</span>
         </button>
@@ -22,33 +29,20 @@
                     hx-get="/app/issues/create?projectId=@vm.DefaultProjectId"
                     hx-target="#modal-root"
                     hx-swap="innerHTML"
-                    class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">+ New Issue</button>
+                    class="rounded-xl bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">+ New Issue</button>
         }
     </div>
 </div>
 
-<div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
-    <partial name="Shared/_KpiCard" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel("Open issues", vm.Stats.OpenIssues, "bg-violet-50", "text-violet-600", "📋"))" />
-    <partial name="Shared/_KpiCard" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel("In progress", vm.Stats.InProgress, "bg-sky-50", "text-sky-600", "🔄"))" />
-    <partial name="Shared/_KpiCard" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel("Done this sprint", vm.Stats.DoneThisSprint, "bg-emerald-50", "text-emerald-600", "✅"))" />
-    <partial name="Shared/_KpiCard" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel("Overdue", vm.Stats.Overdue, "bg-rose-50", "text-rose-600", "⚠️"))" />
-    <partial name="Shared/_KpiCard" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel("Urgent", vm.Stats.Urgent, "bg-orange-50", "text-orange-600", "🔥"))" />
+<div class="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
+    <partial name="Shared/_KpiCard" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel("Open issues", vm.Stats.OpenIssues, "bg-violet-50", "text-violet-500", Nimbus_Board.Pages.App.Shared.KpiIcon.List))" />
+    <partial name="Shared/_KpiCard" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel("In progress", vm.Stats.InProgress, "bg-sky-50", "text-sky-500", Nimbus_Board.Pages.App.Shared.KpiIcon.Progress))" />
+    <partial name="Shared/_KpiCard" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel("Done this sprint", vm.Stats.DoneThisSprint, "bg-emerald-50", "text-emerald-500", Nimbus_Board.Pages.App.Shared.KpiIcon.Done))" />
+    <partial name="Shared/_KpiCard" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel("Overdue", vm.Stats.Overdue, "bg-rose-50", "text-rose-500", Nimbus_Board.Pages.App.Shared.KpiIcon.Warning))" />
+    <partial name="Shared/_KpiCard" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel("Urgent", vm.Stats.Urgent, "bg-orange-50", "text-orange-500", Nimbus_Board.Pages.App.Shared.KpiIcon.Flame))" />
 </div>
 
-<div class="mb-8 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-    <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-slate-900">Urgent tasks</h2>
-        <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-700">View all</a>
-    </div>
-    <div class="space-y-3">
-        @foreach (var task in vm.UrgentTasks)
-        {
-            <partial name="Shared/_UrgentTaskRow" model="task" />
-        }
-    </div>
-</div>
-
-<div class="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
+<div class="mb-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
     @if (vm.ActiveSprint is not null)
     {
         <partial name="Shared/_SprintMiniKanban" model="vm.ActiveSprint" />
@@ -56,25 +50,33 @@
     <partial name="Shared/_BurndownChart" model="vm.Burndown" />
 </div>
 
-<div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
-    <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-        <h2 class="mb-4 text-lg font-semibold text-slate-900">Recent activity</h2>
-        <div class="space-y-4">
+<div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+    <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+        <div class="mb-3 flex items-center justify-between">
+            <h2 class="text-base font-semibold text-slate-900">Urgent tasks</h2>
+            <a href="/app/my-work" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">View all</a>
+        </div>
+        <div class="space-y-2">
+            @foreach (var task in vm.UrgentTasks)
+            {
+                <partial name="Shared/_UrgentTaskRow" model="task" />
+            }
+            @if (!vm.UrgentTasks.Any())
+            {
+                <p class="py-4 text-center text-xs text-slate-500">No urgent tasks.</p>
+            }
+        </div>
+    </div>
+    <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+        <h2 class="mb-3 text-base font-semibold text-slate-900">Recent activity</h2>
+        <div class="space-y-3">
             @foreach (var item in vm.RecentActivity)
             {
                 <partial name="Shared/_ActivityFeed" model="item" />
             }
-        </div>
-    </div>
-    <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-        <h2 class="mb-4 text-lg font-semibold text-slate-900">Boards quick access</h2>
-        <div class="flex flex-wrap gap-3">
-            @foreach (var board in vm.BoardLinks)
+            @if (!vm.RecentActivity.Any())
             {
-                <a href="/app/boards/@board.Id"
-                   class="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">
-                    @board.Name
-                </a>
+                <p class="py-4 text-center text-xs text-slate-500">No recent activity.</p>
             }
         </div>
     </div>

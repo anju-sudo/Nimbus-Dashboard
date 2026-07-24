@@ -1,19 +1,19 @@
 @model NimbusBoard.Application.Dashboard.Models.BurndownChartViewModel
-<div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-    <h2 class="mb-4 text-lg font-semibold text-slate-900">Burndown</h2>
-    <div class="mb-3 flex items-center gap-4 text-xs text-slate-500">
+<div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+    <h2 class="mb-2 text-base font-semibold text-slate-900">Burndown</h2>
+    <div class="mb-2 flex items-center gap-4 text-xs text-slate-500">
         <span class="flex items-center gap-2"><span class="h-0.5 w-6 bg-indigo-500"></span> Actual</span>
         <span class="flex items-center gap-2"><span class="h-0.5 w-6 border-t border-dashed border-slate-400"></span> Ideal</span>
     </div>
     @if (Model.Labels.Count == 0)
     {
-        <div class="flex h-48 items-center justify-center rounded-xl bg-slate-50 text-sm text-slate-500">
+        <div class="flex h-40 items-center justify-center rounded-xl bg-slate-50 text-sm text-slate-500">
             No burndown data yet. Start a sprint to see the chart.
         </div>
     }
     else
     {
-        <div class="relative h-48 w-full">
+        <div class="relative h-40 w-full">
             <canvas id="burndown-chart"></canvas>
         </div>
     }
