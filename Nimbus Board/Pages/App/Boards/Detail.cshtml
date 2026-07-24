@@ -1,0 +1,44 @@
+@page "/app/boards/{id:guid}"
+@model Nimbus_Board.Pages.App.Boards.DetailModel
+@{
+    var board = Model.Board!;
+}
+
+<div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div>
+        <a href="/app/boards" class="text-sm text-indigo-600">← Boards</a>
+        <h1 class="mt-2 text-2xl font-bold text-slate-900">@board.Name</h1>
+        <p class="text-sm text-slate-500">@board.ProjectKey · @board.ProjectName</p>
+    </div>
+    <button type="button"
+            hx-get="/app/issues/create?projectId=@board.ProjectId"
+            hx-target="#modal-root"
+            hx-swap="innerHTML"
+            class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">+ New Issue</button>
+</div>
+
+<div class="flex gap-4 overflow-x-auto pb-4" id="kanban-board" data-board-id="@board.Id">
+    @foreach (var column in board.Columns)
+    {
+        <div class="w-80 shrink-0 rounded-2xl bg-slate-100 p-3" data-column-id="@column.Id">
+            <div class="mb-3 flex items-center justify-between px-1">
+                <h2 class="text-xs font-semibold uppercase tracking-wide text-slate-500">@column.Name</h2>
+                <span class="rounded-full bg-white px-2 py-0.5 text-xs text-slate-500">@column.Issues.Count</span>
+            </div>
+            <div class="kanban-column min-h-[200px] space-y-2" data-column-id="@column.Id">
+                @foreach (var issue in column.Issues)
+                {
+                    <partial name="Shared/_BoardIssueCard" model="issue" />
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<div id="modal-root"></div>
+<div id="issue-panel-root"></div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script src="~/js/sortable-init.js" asp-append-version="true"></script>
+}

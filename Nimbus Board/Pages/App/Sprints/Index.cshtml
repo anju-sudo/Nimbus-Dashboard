@@ -1,0 +1,86 @@
+@page "/app/sprints"
+@model Nimbus_Board.Pages.App.Sprints.IndexModel
+
+<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+        <h1 class="text-2xl font-bold text-slate-900">Sprints</h1>
+        <p class="text-sm text-slate-500">Plan, start, and track sprint burndown</p>
+    </div>
+</div>
+
+<div class="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-3">
+    <div class="xl:col-span-2 space-y-3">
+        @if (!Model.Sprints.Any())
+        {
+            <div class="rounded-2xl border border-slate-100 bg-white p-8 text-center text-sm text-slate-500 shadow-sm">
+                No sprints yet. Create one to get started.
+            </div>
+        }
+        else
+        {
+            @foreach (var sprint in Model.Sprints)
+            {
+                <a href="/app/sprints/@sprint.Id"
+                   class="block rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:border-indigo-200 hover:shadow-md">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-lg font-semibold text-slate-900">@sprint.Name</h2>
+                                @if (sprint.IsActive)
+                                {
+                                    <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">Active</span>
+                                }
+                            </div>
+                            <p class="mt-1 text-sm text-slate-500">@sprint.ProjectKey · @sprint.ProjectName</p>
+                            @if (!string.IsNullOrWhiteSpace(sprint.Goal))
+                            {
+                                <p class="mt-2 text-sm text-slate-600">@sprint.Goal</p>
+                            }
+                        </div>
+                        <div class="text-right text-sm text-slate-500">
+                            <p>@sprint.StartDate.ToString("MMM d") – @sprint.EndDate.ToString("MMM d")</p>
+                            <p class="mt-1">@sprint.IssueCount issues · @sprint.DaysLeft days left</p>
+                            <p class="mt-1">@sprint.CompletedStoryPoints / @sprint.TotalStoryPoints pts</p>
+                        </div>
+                    </div>
+                </a>
+            }
+        }
+    </div>
+
+    <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold text-slate-900">Create sprint</h2>
+        <form method="post" asp-page-handler="Create" class="space-y-4">
+            <div>
+                <label class="mb-1 block text-xs font-medium text-slate-500">Project</label>
+                <select asp-for="Input.ProjectId" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                    @foreach (var project in Model.CreateForm.Projects)
+                    {
+                        <option value="@project.Id">@project.Key — @project.Name</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-medium text-slate-500">Name</label>
+                <input asp-for="Input.Name" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="Sprint 15" />
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-medium text-slate-500">Goal</label>
+                <input asp-for="Input.Goal" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="Optional goal" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="mb-1 block text-xs font-medium text-slate-500">Start</label>
+                    <input asp-for="Input.StartDate" type="date" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                </div>
+                <div>
+                    <label class="mb-1 block text-xs font-medium text-slate-500">End</label>
+                    <input asp-for="Input.EndDate" type="date" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                </div>
+            </div>
+            <button type="submit" class="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
+                Create sprint
+            </button>
+        </form>
+    </div>
+</div>

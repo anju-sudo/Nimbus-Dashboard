@@ -1,0 +1,19 @@
+@model NimbusBoard.Application.Issues.Models.IssueDetailViewModel
+
+<div class="flex flex-wrap gap-2" id="labels-@Model.Key">
+    @foreach (var label in Model.Labels)
+    {
+        <button type="button"
+                hx-post="/app/issues/@Model.Key/labels?labelId=@label.Id"
+                hx-target="#labels-@Model.Key"
+                hx-swap="outerHTML"
+                class="rounded-full px-3 py-1 text-xs font-medium transition @(label.IsAssigned ? "text-white" : "bg-white text-slate-600 ring-1 ring-slate-200")"
+                style="@(label.IsAssigned ? $"background-color: {label.Color}" : "")">
+            @label.Name
+        </button>
+    }
+    @if (!Model.Labels.Any())
+    {
+        <span class="text-xs text-slate-400">No labels defined for this project.</span>
+    }
+</div>

@@ -1,0 +1,18 @@
+@model IReadOnlyList<NimbusBoard.Application.Collaboration.Models.IssueActivityViewModel>
+
+@if (!Model.Any())
+{
+    <p class="text-sm text-slate-500">No activity yet.</p>
+}
+else
+{
+    <div class="space-y-2">
+        @foreach (var item in Model)
+        {
+            <div class="flex items-start justify-between text-sm">
+                <span class="text-slate-700">@item.Message</span>
+                <span class="shrink-0 text-xs text-slate-400">@item.TimeAgo</span>
+            </div>
+        }
+    </div>
+}

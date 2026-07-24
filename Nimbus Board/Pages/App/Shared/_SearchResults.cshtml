@@ -1,0 +1,46 @@
+@model NimbusBoard.Application.Search.Models.SearchResultsViewModel
+
+@if (string.IsNullOrWhiteSpace(Model.Term))
+{
+    <p class="px-2 py-4 text-sm text-slate-500">Type to search issues, projects, and boards.</p>
+}
+else if (!Model.Issues.Any() && !Model.Projects.Any() && !Model.Boards.Any())
+{
+    <p class="px-2 py-4 text-sm text-slate-500">No results for “@Model.Term”.</p>
+}
+else
+{
+    @if (Model.Issues.Any())
+    {
+        <p class="px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Issues</p>
+        @foreach (var hit in Model.Issues)
+        {
+            <a href="@hit.Url" class="block rounded-xl px-3 py-2 hover:bg-slate-50">
+                <p class="text-sm font-medium text-indigo-600">@hit.Title</p>
+                <p class="text-xs text-slate-500">@hit.Subtitle</p>
+            </a>
+        }
+    }
+    @if (Model.Projects.Any())
+    {
+        <p class="mt-3 px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Projects</p>
+        @foreach (var hit in Model.Projects)
+        {
+            <a href="@hit.Url" class="block rounded-xl px-3 py-2 hover:bg-slate-50">
+                <p class="text-sm font-medium text-slate-800">@hit.Title</p>
+                <p class="text-xs text-slate-500">@hit.Subtitle</p>
+            </a>
+        }
+    }
+    @if (Model.Boards.Any())
+    {
+        <p class="mt-3 px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Boards</p>
+        @foreach (var hit in Model.Boards)
+        {
+            <a href="@hit.Url" class="block rounded-xl px-3 py-2 hover:bg-slate-50">
+                <p class="text-sm font-medium text-slate-800">@hit.Title</p>
+                <p class="text-xs text-slate-500">@hit.Subtitle</p>
+            </a>
+        }
+    }
+}

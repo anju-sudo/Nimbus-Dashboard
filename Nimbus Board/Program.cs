@@ -2,6 +2,11 @@ using NimbusBoard.Infrastructure;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+// Resolve |DataDirectory| for SQLite (same as Umbraco)
+var dataDirectory = Path.Combine(builder.Environment.ContentRootPath, "umbraco", "Data");
+Directory.CreateDirectory(dataDirectory);
+AppDomain.CurrentDomain.SetData("DataDirectory", dataDirectory);
+
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()

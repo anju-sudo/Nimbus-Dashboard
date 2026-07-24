@@ -15,8 +15,9 @@ public class DashboardModel(IMediator mediator) : PageModel
         ViewData["Title"] = "Dashboard";
         ViewData["ActiveNav"] = "dashboard";
         ViewData["UnreadNotifications"] = ViewModel.UnreadNotifications;
-        ViewData["UserName"] = ViewModel.UserName + " Silva";
+        ViewData["UserName"] = "Anjumol Babu";
         ViewData["UserInitials"] = ViewModel.UserInitials;
         ViewData["WorkspaceName"] = ViewModel.WorkspaceName;
+        ViewData["MemberId"] = 1;
     }
 }

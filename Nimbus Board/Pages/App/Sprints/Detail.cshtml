@@ -1,0 +1,104 @@
+@page "/app/sprints/{id:guid}"
+@model Nimbus_Board.Pages.App.Sprints.DetailModel
+@{
+    var sprint = Model.Sprint!;
+}
+
+<div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div>
+        <a href="/app/sprints" class="text-sm text-indigo-600 hover:text-indigo-700">← All sprints</a>
+        <div class="mt-2 flex items-center gap-2">
+            <h1 class="text-2xl font-bold text-slate-900">@sprint.Name</h1>
+            @if (sprint.IsActive)
+            {
+                <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">Active</span>
+            }
+        </div>
+        <p class="text-sm text-slate-500">@sprint.ProjectKey · @sprint.ProjectName · @sprint.StartDate.ToString("MMM d") – @sprint.EndDate.ToString("MMM d") · @sprint.DaysLeft days left</p>
+        @if (!string.IsNullOrWhiteSpace(sprint.Goal))
+        {
+            <p class="mt-2 text-sm text-slate-600">@sprint.Goal</p>
+        }
+    </div>
+    <div class="flex flex-wrap gap-2">
+        @if (!sprint.IsActive)
+        {
+            <form method="post" asp-page-handler="Start">
+                <button type="submit" class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">Start sprint</button>
+            </form>
+        }
+        else
+        {
+            <form method="post" asp-page-handler="Complete">
+                <button type="submit" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Complete sprint</button>
+            </form>
+        }
+    </div>
+</div>
+
+<div class="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
+    <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold text-slate-900">Sprint issues (@sprint.Issues.Count)</h2>
+        <div class="mb-4 text-sm text-slate-500">@sprint.CompletedStoryPoints / @sprint.TotalStoryPoints story points done</div>
+        <div class="divide-y divide-slate-100">
+            @foreach (var issue in sprint.Issues)
+            {
+                <div class="flex items-center justify-between py-3">
+                    <div>
+                        <a href="/app/issues/@issue.Key" class="text-sm font-semibold text-indigo-600">@issue.Key</a>
+                        <span class="ml-2 text-sm text-slate-800">@issue.Title</span>
+                        <div class="mt-1 text-xs text-slate-500">@issue.Status · @issue.StoryPoints pts · @issue.Priority</div>
+                    </div>
+                    <form method="post" asp-page-handler="Remove">
+                        <input type="hidden" name="issueId" value="@issue.Id" />
+                        <button type="submit" class="text-xs text-slate-400 hover:text-rose-600">Remove</button>
+                    </form>
+                </div>
+            }
+            @if (!sprint.Issues.Any())
+            {
+                <p class="py-6 text-center text-sm text-slate-500">No issues in this sprint yet.</p>
+            }
+        </div>
+    </div>
+
+    <partial name="Shared/_BurndownChart" model="sprint.Burndown" />
+</div>
+
+<div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+    <h2 class="mb-4 text-lg font-semibold text-slate-900">Backlog candidates</h2>
+    @if (!sprint.BacklogCandidates.Any())
+    {
+        <p class="text-sm text-slate-500">No unassigned issues in this project.</p>
+    }
+    else
+    {
+        <div class="divide-y divide-slate-100">
+            @foreach (var issue in sprint.BacklogCandidates)
+            {
+                <div class="flex items-center justify-between py-3">
+                    <div>
+                        <span class="text-sm font-semibold text-indigo-600">@issue.Key</span>
+                        <span class="ml-2 text-sm text-slate-800">@issue.Title</span>
+                        <span class="ml-2 text-xs text-slate-500">@issue.StoryPoints pts</span>
+                    </div>
+                    <form method="post" asp-page-handler="Assign">
+                        <input type="hidden" name="issueId" value="@issue.Id" />
+                        <button type="submit" class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700">Add to sprint</button>
+                    </form>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        window.nimbusBurndown = {
+            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(sprint.Burndown.Labels)),
+            actual: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(sprint.Burndown.Actual)),
+            ideal: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(sprint.Burndown.Ideal))
+        };
+    </script>
+    <script src="~/js/burndown-chart.js" asp-append-version="true"></script>
+}

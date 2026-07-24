@@ -1,0 +1,46 @@
+@page "/app/my-work"
+@model Nimbus_Board.Pages.App.MyWork.IndexModel
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-900">My Work</h1>
+    <p class="text-sm text-slate-500">Issues assigned to you</p>
+</div>
+
+@if (Model.Boards.Any())
+{
+    <div class="mb-6">
+        <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Boards</h2>
+        <div class="flex flex-wrap gap-2">
+            @foreach (var board in Model.Boards)
+            {
+                <a href="/app/boards/@board.Id"
+                   class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">
+                    @board.Name
+                </a>
+            }
+        </div>
+    </div>
+}
+
+<div class="rounded-2xl border border-slate-100 bg-white shadow-sm">
+    @if (!Model.Issues.Any())
+    {
+        <p class="p-8 text-center text-sm text-slate-500">No issues assigned to you.</p>
+    }
+    else
+    {
+        <div class="divide-y divide-slate-100">
+            @foreach (var issue in Model.Issues)
+            {
+                <a href="/app/issues/@issue.Key" class="flex items-center justify-between px-6 py-4 hover:bg-slate-50">
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-semibold text-indigo-600">@issue.Key</span>
+                        <span class="text-sm text-slate-800">@issue.Title</span>
+                        <span class="rounded-full px-2 py-0.5 text-xs @issue.PriorityClass">@issue.Priority</span>
+                    </div>
+                    <span class="text-xs text-slate-500">@issue.ProjectKey · @issue.Status</span>
+                </a>
+            }
+        </div>
+    }
+</div>

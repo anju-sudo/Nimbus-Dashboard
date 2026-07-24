@@ -6,34 +6,20 @@ namespace NimbusBoard.Infrastructure.Persistence;
 
 public class NimbusBoardDbContext(DbContextOptions<NimbusBoardDbContext> options) : DbContext(options), INimbusBoardDbContext
 {
-    public DbSet<Workspace> WorkspacesSet => Set<Workspace>();
-    public DbSet<Project> ProjectsSet => Set<Project>();
-    public DbSet<ProjectMember> ProjectMembersSet => Set<ProjectMember>();
-    public DbSet<Board> BoardsSet => Set<Board>();
-    public DbSet<BoardColumn> BoardColumnsSet => Set<BoardColumn>();
-    public DbSet<Sprint> SprintsSet => Set<Sprint>();
-    public DbSet<Issue> IssuesSet => Set<Issue>();
-    public DbSet<Comment> CommentsSet => Set<Comment>();
-    public DbSet<Attachment> AttachmentsSet => Set<Attachment>();
-    public DbSet<Label> LabelsSet => Set<Label>();
-    public DbSet<IssueLabel> IssueLabelsSet => Set<IssueLabel>();
-    public DbSet<Notification> NotificationsSet => Set<Notification>();
-    public DbSet<ActivityLog> ActivityLogsSet => Set<ActivityLog>();
-    public DbSet<BurndownSnapshot> BurndownSnapshotsSet => Set<BurndownSnapshot>();
-
-    public IQueryable<Workspace> Workspaces => WorkspacesSet.AsQueryable();
-    public IQueryable<Project> Projects => ProjectsSet.AsQueryable();
-    public IQueryable<ProjectMember> ProjectMembers => ProjectMembersSet.AsQueryable();
-    public IQueryable<Board> Boards => BoardsSet.AsQueryable();
-    public IQueryable<BoardColumn> BoardColumns => BoardColumnsSet.AsQueryable();
-    public IQueryable<Sprint> Sprints => SprintsSet.AsQueryable();
-    public IQueryable<Issue> Issues => IssuesSet.AsQueryable();
-    public IQueryable<Comment> Comments => CommentsSet.AsQueryable();
-    public IQueryable<Attachment> Attachments => AttachmentsSet.AsQueryable();
-    public IQueryable<Label> Labels => LabelsSet.AsQueryable();
-    public IQueryable<Notification> Notifications => NotificationsSet.AsQueryable();
-    public IQueryable<ActivityLog> ActivityLogs => ActivityLogsSet.AsQueryable();
-    public IQueryable<BurndownSnapshot> BurndownSnapshots => BurndownSnapshotsSet.AsQueryable();
+    public DbSet<Workspace> Workspaces => Set<Workspace>();
+    public DbSet<Project> Projects => Set<Project>();
+    public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
+    public DbSet<Board> Boards => Set<Board>();
+    public DbSet<BoardColumn> BoardColumns => Set<BoardColumn>();
+    public DbSet<Sprint> Sprints => Set<Sprint>();
+    public DbSet<Issue> Issues => Set<Issue>();
+    public DbSet<Comment> Comments => Set<Comment>();
+    public DbSet<Attachment> Attachments => Set<Attachment>();
+    public DbSet<Label> Labels => Set<Label>();
+    public DbSet<IssueLabel> IssueLabels => Set<IssueLabel>();
+    public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
+    public DbSet<BurndownSnapshot> BurndownSnapshots => Set<BurndownSnapshot>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

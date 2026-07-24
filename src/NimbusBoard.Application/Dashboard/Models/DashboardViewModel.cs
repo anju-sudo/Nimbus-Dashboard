@@ -2,8 +2,8 @@ namespace NimbusBoard.Application.Dashboard.Models;
 
 public class DashboardViewModel
 {
-    public string UserName { get; set; } = "Jordan";
-    public string UserInitials { get; set; } = "JS";
+    public string UserName { get; set; } = "Anju";
+    public string UserInitials { get; set; } = "AB";
     public string WorkspaceName { get; set; } = "Acme";
     public DateTime Today { get; set; } = DateTime.Today;
     public int UnreadNotifications { get; set; }
@@ -13,6 +13,7 @@ public class DashboardViewModel
     public BurndownChartViewModel Burndown { get; set; } = new();
     public IReadOnlyList<ActivityItemViewModel> RecentActivity { get; set; } = [];
     public IReadOnlyList<BoardQuickLinkViewModel> BoardLinks { get; set; } = [];
+    public Guid? DefaultProjectId { get; set; }
 }
 
 public class DashboardStatsViewModel

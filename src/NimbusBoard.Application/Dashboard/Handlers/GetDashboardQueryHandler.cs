@@ -3,11 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using NimbusBoard.Application.Common.Interfaces;
 using NimbusBoard.Application.Dashboard.Models;
 using NimbusBoard.Application.Dashboard.Queries;
+using NimbusBoard.Application.Sprints;
 using NimbusBoard.Domain.Enums;
 
 namespace NimbusBoard.Application.Dashboard.Handlers;
 
-public class GetDashboardQueryHandler(INimbusBoardDbContext db) : IRequestHandler<GetDashboardQuery, DashboardViewModel>
+public class GetDashboardQueryHandler(INimbusBoardDbContext db, IBurndownService burndown)
+    : IRequestHandler<GetDashboardQuery, DashboardViewModel>
 {
     public async Task<DashboardViewModel> Handle(GetDashboardQuery request, CancellationToken cancellationToken)
     {
@@ -22,14 +24,20 @@ public class GetDashboardQueryHandler(INimbusBoardDbContext db) : IRequestHandle
             .ThenInclude(i => i.BoardColumn)
             .FirstOrDefaultAsync(s => s.IsActive, cancellationToken);
 
+        if (activeSprint is not null)
+        {
+            await burndown.EnsureTodaySnapshotAsync(activeSprint.Id, cancellationToken);
+        }
+
         var workspace = await db.Workspaces.FirstOrDefaultAsync(cancellationToken);
+        var defaultProject = await db.Projects.OrderBy(p => p.Name).FirstOrDefaultAsync(cancellationToken);
         var boards = await db.Boards.Take(3).ToListAsync(cancellationToken);
         var activity = await db.ActivityLogs
             .OrderByDescending(a => a.CreatedAt)
             .Take(5)
             .ToListAsync(cancellationToken);
 
-        var unread = await db.Notifications.CountAsync(n => !n.IsRead, cancellationToken);
+        var unread = await db.Notifications.CountAsync(n => !n.IsRead && n.RecipientMemberId == 1, cancellationToken);
 
         var openIssues = issues.Count(i => i.Status is not IssueStatus.Done);
         var inProgress = issues.Count(i => i.Status == IssueStatus.InProgress);
@@ -44,12 +52,12 @@ public class GetDashboardQueryHandler(INimbusBoardDbContext db) : IRequestHandle
             .Select(MapUrgentTask)
             .ToList();
 
-        var burndown = await BuildBurndownAsync(activeSprint?.Id, cancellationToken);
+        var burndownChart = await BurndownQueryHelper.BuildAsync(db, activeSprint?.Id, cancellationToken);
 
         return new DashboardViewModel
         {
-            UserName = "Jordan",
-            UserInitials = "JS",
+            UserName = "Anju",
+            UserInitials = "AB",
             WorkspaceName = workspace?.Name ?? "Acme",
             Today = today,
             UnreadNotifications = unread,
@@ -63,7 +71,7 @@ public class GetDashboardQueryHandler(INimbusBoardDbContext db) : IRequestHandle
             },
             UrgentTasks = urgentTasks,
             ActiveSprint = activeSprint is null ? null : MapSprintPreview(activeSprint),
-            Burndown = burndown,
+            Burndown = burndownChart,
             RecentActivity = activity.Select(a => new ActivityItemViewModel
             {
                 Message = $"{a.ActorName} {a.Action}" + (a.Detail is null ? "" : $" {a.Detail}"),
@@ -73,7 +81,8 @@ public class GetDashboardQueryHandler(INimbusBoardDbContext db) : IRequestHandle
             {
                 Id = b.Id,
                 Name = b.Name
-            }).ToList()
+            }).ToList(),
+            DefaultProjectId = defaultProject?.Id
         };
     }
 
@@ -132,26 +141,6 @@ public class GetDashboardQueryHandler(INimbusBoardDbContext db) : IRequestHandle
                         .ToList()
                 };
             }).ToList()
-        };
-    }
-
-    private async Task<BurndownChartViewModel> BuildBurndownAsync(Guid? sprintId, CancellationToken cancellationToken)
-    {
-        if (sprintId is null)
-        {
-            return new BurndownChartViewModel();
-        }
-
-        var snapshots = await db.BurndownSnapshots
-            .Where(b => b.SprintId == sprintId)
-            .OrderBy(b => b.SnapshotDate)
-            .ToListAsync(cancellationToken);
-
-        return new BurndownChartViewModel
-        {
-            Labels = snapshots.Select(s => s.SnapshotDate.ToString("MMM d")).ToList(),
-            Actual = snapshots.Select(s => s.RemainingPoints).ToList(),
-            Ideal = snapshots.Select(s => s.IdealPoints).ToList()
         };
     }
 

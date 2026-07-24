@@ -1,0 +1,23 @@
+@page "/app/issues/{key}"
+@model Nimbus_Board.Pages.App.Issues.DetailModel
+@{
+    var issue = Model.Issue!;
+    var isPartial = Model.IsPartial;
+    Layout = isPartial ? null : "/Pages/App/Shared/_AppLayout.cshtml";
+}
+
+@if (isPartial)
+{
+    <div class="fixed inset-0 z-50 flex justify-end bg-slate-900/30" onclick="if(event.target===this)this.remove()">
+        <div class="h-full w-full max-w-lg overflow-y-auto bg-white p-6 shadow-2xl" onclick="event.stopPropagation()">
+            <partial name="Shared/_IssueDetailContent" model="issue" />
+        </div>
+    </div>
+}
+else
+{
+    <a href="javascript:history.back()" class="text-sm text-indigo-600">← Back</a>
+    <div class="mt-4 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <partial name="Shared/_IssueDetailContent" model="issue" />
+    </div>
+}
