@@ -12,6 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NimbusBoard.Domain\NimbusBoard.Domain.csproj" />
+    <ProjectReference Include="..\..\Domain\NimbusBoard.Domain\NimbusBoard.Domain.csproj" />
   </ItemGroup>
 </Project>

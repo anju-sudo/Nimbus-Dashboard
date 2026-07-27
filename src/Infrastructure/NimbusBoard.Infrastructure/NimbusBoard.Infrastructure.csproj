@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NimbusBoard.Application\NimbusBoard.Application.csproj" />
-    <ProjectReference Include="..\NimbusBoard.Domain\NimbusBoard.Domain.csproj" />
+    <ProjectReference Include="..\..\Core\NimbusBoard.Application\NimbusBoard.Application.csproj" />
+    <ProjectReference Include="..\..\Domain\NimbusBoard.Domain\NimbusBoard.Domain.csproj" />
   </ItemGroup>
 </Project>

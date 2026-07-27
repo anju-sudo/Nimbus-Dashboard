@@ -1,26 +1,36 @@
 # Architecture
 
-Nimbus Board is a clean-ish layered ASP.NET Core app hosted inside Umbraco.
+Nimbus Board follows a Clean Architecture-style layout under `src/`.
 
 ```text
-Nimbus Board (Host / Umbraco)
-  ├── Pages/App/*          Razor Pages UI + HTMX endpoints
-  ├── Hubs/NotificationHub SignalR
-  ├── Services/*           Host adapters (SignalR publisher, media storage)
-  └── Composers/*          DI wiring
+src/
+  Domain/NimbusBoard.Domain
+    └── Entities + Enums (+ BaseEntity)
 
-src/NimbusBoard.Application
-  ├── *Commands / *Queries / Handlers  MediatR
-  ├── Common (BurndownCalculator, IssueStatusStateMachine)
-  └── Interfaces (INimbusBoardDbContext, IBurndownService, IEmailSender, ...)
+  Core/NimbusBoard.Application
+    ├── *Commands / *Queries / Handlers   MediatR use cases
+    ├── Common (BurndownCalculator, IssueStatusStateMachine)
+    └── Interfaces (INimbusBoardDbContext, IBurndownService, IEmailSender, ...)
 
-src/NimbusBoard.Infrastructure
-  ├── Persistence/NimbusBoardDbContext
-  └── Services (BurndownService, SmtpEmailSender, NotificationPublisher, IssueKeyFactory)
+  Infrastructure/NimbusBoard.Infrastructure
+    ├── Persistence/NimbusBoardDbContext
+    └── Services (BurndownService, SmtpEmailSender, NotificationPublisher, IssueKeyFactory)
 
-src/NimbusBoard.Domain
-  └── Entities + Enums
+  Host/NimbusBoard.Web   (Umbraco entry + Presentation)
+    ├── Pages/App/*          Razor Pages UI + HTMX endpoints
+    ├── Hubs/NotificationHub SignalR
+    ├── Services/*           Host adapters (SignalR publisher, media storage)
+    └── Composers/*          DI wiring
+
+  Packaging/                 Publish / deploy notes
+
+tests/NimbusBoard.Application.Tests
+docs/                        ARCHITECTURE + API-FLOWS
 ```
+
+**Dependency rule:** Host → Infrastructure → Core → Domain. Core never references Infrastructure or Host.
+
+> Why no separate Presentation project? Umbraco owns the web pipeline. Razor Pages, hubs, and composers stay in Host so CMS and `/app` UI share one startup.
 
 ## Dual databases
 
@@ -46,6 +56,7 @@ src/NimbusBoard.Domain
 - Dashboard aggregates via `GetDashboardQuery`
 - Boards use Sortable.js → `MoveIssueCommand`
 - Comments/labels/attachments use HTMX partials
+- Issue assignee picker uses project `ProjectMember` list
 
 ## Auth model (demo)
 

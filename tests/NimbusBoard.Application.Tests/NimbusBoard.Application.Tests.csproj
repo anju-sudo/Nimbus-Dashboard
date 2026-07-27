@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\NimbusBoard.Application\NimbusBoard.Application.csproj" />
-    <ProjectReference Include="..\..\src\NimbusBoard.Infrastructure\NimbusBoard.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\src\NimbusBoard.Domain\NimbusBoard.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Core\NimbusBoard.Application\NimbusBoard.Application.csproj" />
+    <ProjectReference Include="..\..\src\Infrastructure\NimbusBoard.Infrastructure\NimbusBoard.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Domain\NimbusBoard.Domain\NimbusBoard.Domain.csproj" />
   </ItemGroup>
 </Project>

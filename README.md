@@ -2,30 +2,47 @@
 
 Lightweight Jira alternative built on **Umbraco CMS**, **EF Core**, **MediatR**, **HTMX**, **SignalR**, and **Chart.js**.
 
+## Solution layout
+
+```text
+NimbusBoard.slnx
+docs/                          Architecture and API flow docs
+src/
+  Domain/NimbusBoard.Domain            Entities + enums
+  Core/NimbusBoard.Application         MediatR use cases + interfaces
+  Infrastructure/NimbusBoard.Infrastructure   EF Core, SMTP, factories
+  Host/NimbusBoard.Web                 Umbraco host + Razor Pages UI
+  Packaging/                           Publish / deploy notes
+tests/NimbusBoard.Application.Tests
+```
+
+This mirrors a Clean Architecture layout (Domain / Core / Infrastructure / Host), similar to professional .NET solutions. Presentation (Razor Pages, hubs, composers) lives in **Host** because Umbraco is the web entry point.
+
 ## Features
 
 - Dashboard with KPI cards, urgent tasks, sprint preview, and burndown chart
 - Projects, issues (NIM-### keys), and Kanban boards with drag-and-drop
 - Comments, labels, attachments, and activity log
 - Sprint planning (create / start / complete / assign) with live burndown snapshots
+- Assign issues to project members (Jira-style assignee picker)
 - In-app notifications with SignalR badge updates and optional SMTP email
 - Global search via **⌘K** / **Ctrl+K**
 
 ## Stack
 
-| Layer | Tech |
-|---|---|
-| Host | ASP.NET Core + Umbraco 17 Razor Pages (`/app/*`) |
-| Application | MediatR commands/queries |
-| Infrastructure | EF Core SQLite (`NimbusBoard` DB) |
-| Auth / CMS | Umbraco members + separate Umbraco SQLite |
-| UI | Tailwind CDN, HTMX, Chart.js, Sortable.js, SignalR |
+| Layer | Project | Tech |
+|---|---|---|
+| Domain | `NimbusBoard.Domain` | Entities, enums |
+| Core | `NimbusBoard.Application` | MediatR commands/queries |
+| Infrastructure | `NimbusBoard.Infrastructure` | EF Core SQLite, SMTP |
+| Host | `NimbusBoard.Web` | Umbraco 17 + Razor Pages `/app/*` |
+| UI | (inside Host) | Tailwind, HTMX, Chart.js, Sortable.js, SignalR |
 
 ## Run locally
 
 ```bash
 dotnet restore NimbusBoard.slnx
-dotnet run --project "Nimbus Board/Nimbus Board.csproj"
+dotnet run --project src/Host/NimbusBoard.Web/NimbusBoard.Web.csproj
 ```
 
 Open the app URL (typically `https://localhost:44386/app/dashboard`).
@@ -59,8 +76,9 @@ dotnet test NimbusBoard.slnx
 
 ## Docs
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) — layering and Umbraco integration
-- [API-FLOWS.md](API-FLOWS.md) — primary request flows
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — layering and Umbraco integration
+- [docs/API-FLOWS.md](docs/API-FLOWS.md) — primary request flows
+- [src/Packaging/README.md](src/Packaging/README.md) — publish notes
 
 ## Screenshots
 
