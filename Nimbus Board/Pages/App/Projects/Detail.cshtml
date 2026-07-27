@@ -36,7 +36,7 @@
             @foreach (var member in p.Members)
             {
                 <div class="flex items-center gap-3">
-                    <span class="flex h-9 w-9 items-center justify-center rounded-full bg-violet-100 text-xs font-semibold text-violet-700">@member.Initials</span>
+                    <span class="flex h-9 w-9 items-center justify-center rounded-full text-xs font-semibold @member.AvatarClass">@member.Initials</span>
                     <div>
                         <p class="text-sm font-medium">@member.DisplayName</p>
                         <p class="text-xs text-slate-500">@member.Role</p>

@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using NimbusBoard.Application.Common;
 using NimbusBoard.Application.Common.Interfaces;
 using NimbusBoard.Application.Issues.Commands;
 using NimbusBoard.Application.Issues.Models;
@@ -19,6 +20,13 @@ public class CreateModel(IMediator mediator, INimbusBoardDbContext db) : PageMod
         Input.BoardColumnId = boardColumnId;
         var project = await db.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
         Input.ProjectKey = project?.Key ?? string.Empty;
+
+        var members = await db.ProjectMembers
+            .Where(m => m.ProjectId == projectId)
+            .OrderBy(m => m.DisplayName)
+            .ToListAsync();
+        Input.AssignableMembers = members.Select(MemberAvatarHelper.ToViewModel).ToList();
+        Input.AssigneeMemberId = 1;
         return Page();
     }
 
@@ -34,10 +42,8 @@ public class CreateModel(IMediator mediator, INimbusBoardDbContext db) : PageMod
             null,
             Input.StoryPoints,
             Input.DueDate,
-            Input.AssigneeName,
-            Input.AssigneeInitials));
+            Input.AssigneeMemberId));
 
-        var issue = await db.Issues.FirstAsync(i => i.Key == key);
         if (Input.BoardColumnId.HasValue)
         {
             var board = await db.Boards

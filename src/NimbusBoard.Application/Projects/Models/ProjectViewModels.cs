@@ -23,9 +23,11 @@ public class ProjectDetailViewModel
 
 public class ProjectMemberViewModel
 {
+    public int MemberId { get; set; }
     public string DisplayName { get; set; } = string.Empty;
     public string Initials { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
+    public string AvatarClass { get; set; } = "bg-violet-100 text-violet-700";
 }
 
 public class BoardSummaryViewModel

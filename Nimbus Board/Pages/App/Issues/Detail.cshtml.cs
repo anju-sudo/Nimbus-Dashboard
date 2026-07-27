@@ -26,9 +26,16 @@ public class DetailModel(IMediator mediator) : AppPageModel
         return Issue is null ? NotFound() : Page();
     }
 
-    public async Task<IActionResult> OnPostAsync(string title, string? description, string type, string priority, int? storyPoints, DateTime? dueDate, string? assigneeName, string? assigneeInitials)
+    public async Task<IActionResult> OnPostAsync(
+        string title,
+        string? description,
+        string type,
+        string priority,
+        int? storyPoints,
+        DateTime? dueDate,
+        int? assigneeMemberId)
     {
-        await mediator.Send(new UpdateIssueCommand(Key, title, description, type, priority, storyPoints, dueDate, assigneeName, assigneeInitials));
+        await mediator.Send(new UpdateIssueCommand(Key, title, description, type, priority, storyPoints, dueDate, assigneeMemberId));
         return Redirect($"/app/issues/{Key}");
     }
 }

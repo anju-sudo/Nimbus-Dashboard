@@ -13,9 +13,7 @@ public record CreateIssueCommand(
     Guid? SprintId,
     int? StoryPoints,
     DateTime? DueDate,
-    string? AssigneeName,
-    string? AssigneeInitials,
-    int? AssigneeMemberId = 1) : IRequest<string>;
+    int? AssigneeMemberId = null) : IRequest<string>;
 
 public record UpdateIssueCommand(
     string Key,
@@ -25,8 +23,7 @@ public record UpdateIssueCommand(
     string Priority,
     int? StoryPoints,
     DateTime? DueDate,
-    string? AssigneeName,
-    string? AssigneeInitials) : IRequest<Unit>;
+    int? AssigneeMemberId) : IRequest<Unit>;
 
 public record MoveIssueCommand(
     Guid IssueId,

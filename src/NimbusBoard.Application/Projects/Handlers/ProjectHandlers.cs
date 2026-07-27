@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NimbusBoard.Application.Common;
 using NimbusBoard.Application.Common.Interfaces;
 using NimbusBoard.Application.Projects.Commands;
 using NimbusBoard.Application.Projects.Models;
@@ -49,12 +50,7 @@ public class GetProjectByKeyQueryHandler(INimbusBoardDbContext db) : IRequestHan
             Key = project.Key,
             Name = project.Name,
             Description = project.Description,
-            Members = project.Members.Select(m => new ProjectMemberViewModel
-            {
-                DisplayName = m.DisplayName,
-                Initials = m.Initials,
-                Role = m.Role.ToString()
-            }).ToList(),
+            Members = project.Members.Select(MemberAvatarHelper.ToViewModel).ToList(),
             Boards = project.Boards.Select(b => new BoardSummaryViewModel
             {
                 Id = b.Id,

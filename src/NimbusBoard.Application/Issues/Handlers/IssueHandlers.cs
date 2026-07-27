@@ -25,7 +25,14 @@ public class GetIssueByKeyQueryHandler(INimbusBoardDbContext db, IAttachmentStor
             return null;
         }
 
+        var members = await db.ProjectMembers
+            .Where(m => m.ProjectId == issue.ProjectId)
+            .OrderBy(m => m.DisplayName)
+            .ToListAsync(cancellationToken);
+
         var vm = MapDetail(issue);
+        vm.AssignableMembers = members.Select(MemberAvatarHelper.ToViewModel).ToList();
+        vm.CurrentMemberId = 1;
         vm.Comments = await CollaborationQueryHelper.GetCommentsAsync(db, issue.Id, cancellationToken);
         vm.Attachments = await CollaborationQueryHelper.GetAttachmentsAsync(db, storage, issue.Id, cancellationToken);
         vm.Labels = await CollaborationQueryHelper.GetProjectLabelsAsync(db, issue.ProjectId, issue.Id, cancellationToken);
@@ -44,8 +51,10 @@ public class GetIssueByKeyQueryHandler(INimbusBoardDbContext db, IAttachmentStor
         Status = IssueStatusMapper.ToDisplayName(issue.Status),
         StoryPoints = issue.StoryPoints,
         DueDate = issue.DueDate,
+        AssigneeMemberId = issue.AssigneeMemberId,
         AssigneeName = issue.AssigneeName,
         AssigneeInitials = issue.AssigneeInitials,
+        AssigneeAvatarClass = MemberAvatarHelper.ClassFor(issue.AssigneeMemberId ?? 0),
         ProjectKey = issue.Project.Key,
         ProjectName = issue.Project.Name,
         BoardColumnId = issue.BoardColumnId,
@@ -106,6 +115,23 @@ public class CreateIssueCommandHandler(
         var (number, key) = await keyFactory.CreateNextKeyAsync(project, cancellationToken);
         var status = column is null ? IssueStatus.ToDo : IssueStatusMapper.FromColumnName(column.Name);
 
+        string? assigneeName = null;
+        string? assigneeInitials = null;
+        int? assigneeMemberId = request.AssigneeMemberId;
+        if (assigneeMemberId.HasValue)
+        {
+            var member = await db.ProjectMembers.FirstOrDefaultAsync(
+                m => m.ProjectId == project.Id && m.MemberId == assigneeMemberId.Value,
+                cancellationToken);
+            if (member is null)
+            {
+                throw new InvalidOperationException("Assignee is not a member of this project.");
+            }
+
+            assigneeName = member.DisplayName;
+            assigneeInitials = member.Initials;
+        }
+
         var issue = new Issue
         {
             ProjectId = project.Id,
@@ -120,9 +146,9 @@ public class CreateIssueCommandHandler(
             Status = status,
             StoryPoints = request.StoryPoints,
             DueDate = request.DueDate,
-            AssigneeMemberId = request.AssigneeMemberId,
-            AssigneeName = request.AssigneeName,
-            AssigneeInitials = request.AssigneeInitials
+            AssigneeMemberId = assigneeMemberId,
+            AssigneeName = assigneeName,
+            AssigneeInitials = assigneeInitials
         };
 
         db.Issues.Add(issue);
@@ -130,15 +156,15 @@ public class CreateIssueCommandHandler(
         {
             Issue = issue,
             ProjectId = project.Id,
-            ActorMemberId = request.AssigneeMemberId ?? 1,
-            ActorName = request.AssigneeName ?? "System",
+            ActorMemberId = 1,
+            ActorName = "Anjumol Babu",
             Action = "created",
             Detail = key
         });
 
         await db.SaveChangesAsync(cancellationToken);
 
-        if (request.AssigneeMemberId is int assigneeId)
+        if (assigneeMemberId is int assigneeId)
         {
             await notifications.PublishAsync(
                 assigneeId,
@@ -179,7 +205,7 @@ public class UpdateIssueCommandHandler(
             priority = issue.Priority;
         }
 
-        var previousAssignee = issue.AssigneeName;
+        var previousAssigneeId = issue.AssigneeMemberId;
         var previousPoints = issue.StoryPoints;
 
         issue.Title = request.Title;
@@ -188,24 +214,41 @@ public class UpdateIssueCommandHandler(
         issue.Priority = priority;
         issue.StoryPoints = request.StoryPoints;
         issue.DueDate = request.DueDate;
-        issue.AssigneeName = request.AssigneeName;
-        issue.AssigneeInitials = request.AssigneeInitials;
         issue.UpdatedAt = DateTime.UtcNow;
+
+        if (request.AssigneeMemberId is null)
+        {
+            issue.AssigneeMemberId = null;
+            issue.AssigneeName = null;
+            issue.AssigneeInitials = null;
+        }
+        else
+        {
+            var member = await db.ProjectMembers.FirstOrDefaultAsync(
+                m => m.ProjectId == issue.ProjectId && m.MemberId == request.AssigneeMemberId.Value,
+                cancellationToken)
+                ?? throw new InvalidOperationException("Assignee is not a member of this project.");
+
+            issue.AssigneeMemberId = member.MemberId;
+            issue.AssigneeName = member.DisplayName;
+            issue.AssigneeInitials = member.Initials;
+        }
 
         db.ActivityLogs.Add(new ActivityLog
         {
             IssueId = issue.Id,
             ProjectId = issue.ProjectId,
             ActorMemberId = 1,
-            ActorName = request.AssigneeName ?? "User",
-            Action = "updated",
-            Detail = issue.Key
+            ActorName = "Anjumol Babu",
+            Action = previousAssigneeId != issue.AssigneeMemberId ? "reassigned" : "updated",
+            Detail = issue.AssigneeName is null
+                ? $"{issue.Key} (unassigned)"
+                : $"{issue.Key} → {issue.AssigneeName}"
         });
 
         await db.SaveChangesAsync(cancellationToken);
 
-        if (!string.Equals(previousAssignee, request.AssigneeName, StringComparison.OrdinalIgnoreCase)
-            && issue.AssigneeMemberId is int assigneeId)
+        if (previousAssigneeId != issue.AssigneeMemberId && issue.AssigneeMemberId is int assigneeId)
         {
             await notifications.PublishAsync(
                 assigneeId,
