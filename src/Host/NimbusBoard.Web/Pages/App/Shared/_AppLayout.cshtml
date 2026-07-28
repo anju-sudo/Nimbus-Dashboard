@@ -6,6 +6,7 @@
     var userInitials = ViewData["UserInitials"] as string ?? "AB";
     var workspace = ViewData["WorkspaceName"] as string ?? "Acme";
     var memberId = ViewData["MemberId"] as int? ?? 1;
+    var brandName = ViewData["BrandName"] as string ?? "Nimbus";
 
     string NavClass(string key) => activeNav == key
         ? "bg-sky-50 text-sky-700"
@@ -38,9 +39,9 @@
         <div class="border-b border-slate-100 px-6 py-5">
             <div class="flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-sm font-bold text-white">N</div>
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-sm font-bold text-white">@(string.IsNullOrEmpty(brandName) ? "N" : brandName[0])</div>
                     <div>
-                        <p class="font-semibold text-slate-900">Nimbus</p>
+                        <p class="font-semibold text-slate-900">@brandName</p>
                         <p class="text-xs text-slate-500">Workspace · @workspace</p>
                     </div>
                 </div>
@@ -48,7 +49,7 @@
             </div>
         </div>
         <nav class="flex-1 space-y-1 px-3 py-4">
-            <a href="/app/dashboard" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium @NavClass("dashboard")">Dashboard</a>
+            <a href="/" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium @NavClass("dashboard")">Dashboard</a>
             <a href="/app/my-work" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium @NavClass("my-work")">My Work</a>
             <a href="/app/projects" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium @NavClass("projects")">Projects</a>
             <a href="/app/boards" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium @NavClass("boards")">Boards</a>

@@ -1,0 +1,34 @@
+﻿@using MediatR
+@using Nimbus_Board.Models
+@using NimbusBoard.Application.Dashboard.Queries
+@using Umbraco.Cms.Web.Common.Views
+@inherits UmbracoViewPage
+@inject IMediator Mediator
+@{
+    Layout = "/Pages/App/Shared/_AppLayout.cshtml";
+
+    var copy = DashboardCopy.From(Model);
+    var vm = await Mediator.Send(new GetDashboardQuery());
+
+    ViewData["Title"] = copy.PageTitle;
+    ViewData["ActiveNav"] = "dashboard";
+    ViewData["UnreadNotifications"] = vm.UnreadNotifications;
+    ViewData["UserName"] = "Anjumol Babu";
+    ViewData["UserInitials"] = vm.UserInitials;
+    ViewData["WorkspaceName"] = vm.WorkspaceName;
+    ViewData["MemberId"] = 1;
+    ViewData["BrandName"] = copy.BrandName;
+}
+
+<partial name="Partials/_DashboardContent" model="@(new DashboardContentModel { Data = vm, Copy = copy })" />
+
+@section Scripts {
+    <script>
+        window.nimbusBurndown = {
+            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(vm.Burndown.Labels)),
+            actual: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(vm.Burndown.Actual)),
+            ideal: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(vm.Burndown.Ideal))
+        };
+    </script>
+    <script src="~/js/burndown-chart.js" asp-append-version="true"></script>
+}

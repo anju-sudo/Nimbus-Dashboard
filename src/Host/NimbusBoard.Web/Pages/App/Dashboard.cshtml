@@ -1,95 +1,23 @@
 @page "/app/dashboard"
 @model Nimbus_Board.Pages.App.DashboardModel
+@using Nimbus_Board.Models
 @{
-    ViewData["Title"] = "Dashboard";
-    var vm = Model.ViewModel;
+    ViewData["Title"] = Model.Copy.PageTitle;
+    var content = new DashboardContentModel
+    {
+        Data = Model.ViewModel,
+        Copy = Model.Copy
+    };
 }
 
-<div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-    <div>
-        <h1 class="text-xl font-bold text-slate-900">Good morning, @vm.UserName</h1>
-        <p class="text-xs text-slate-500">@vm.Today.ToString("dddd, d MMMM")</p>
-    </div>
-    <div class="flex flex-wrap items-center gap-2">
-        @foreach (var board in vm.BoardLinks)
-        {
-            <a href="/app/boards/@board.Id"
-               class="hidden rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 xl:inline-flex">
-                @board.Name
-            </a>
-        }
-        <button type="button" onclick="window.nimbusOpenSearch()"
-                class="hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-400 shadow-sm lg:flex lg:w-56">
-            <span>Search...</span>
-            <span class="ml-auto rounded border border-slate-200 px-1.5 text-xs text-slate-400">⌘K</span>
-        </button>
-        @if (vm.DefaultProjectId.HasValue)
-        {
-            <button type="button"
-                    hx-get="/app/issues/create?projectId=@vm.DefaultProjectId"
-                    hx-target="#modal-root"
-                    hx-swap="innerHTML"
-                    class="rounded-xl bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">+ New Issue</button>
-        }
-    </div>
-</div>
-
-<div class="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
-    <partial name="Shared/_KpiCard" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel("Open issues", vm.Stats.OpenIssues, "bg-violet-50", "text-violet-500", Nimbus_Board.Pages.App.Shared.KpiIcon.List))" />
-    <partial name="Shared/_KpiCard" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel("In progress", vm.Stats.InProgress, "bg-sky-50", "text-sky-500", Nimbus_Board.Pages.App.Shared.KpiIcon.Progress))" />
-    <partial name="Shared/_KpiCard" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel("Done this sprint", vm.Stats.DoneThisSprint, "bg-emerald-50", "text-emerald-500", Nimbus_Board.Pages.App.Shared.KpiIcon.Done))" />
-    <partial name="Shared/_KpiCard" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel("Overdue", vm.Stats.Overdue, "bg-rose-50", "text-rose-500", Nimbus_Board.Pages.App.Shared.KpiIcon.Warning))" />
-    <partial name="Shared/_KpiCard" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel("Urgent", vm.Stats.Urgent, "bg-orange-50", "text-orange-500", Nimbus_Board.Pages.App.Shared.KpiIcon.Flame))" />
-</div>
-
-<div class="mb-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
-    @if (vm.ActiveSprint is not null)
-    {
-        <partial name="Shared/_SprintMiniKanban" model="vm.ActiveSprint" />
-    }
-    <partial name="Shared/_BurndownChart" model="vm.Burndown" />
-</div>
-
-<div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-    <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-        <div class="mb-3 flex items-center justify-between">
-            <h2 class="text-base font-semibold text-slate-900">Urgent tasks</h2>
-            <a href="/app/my-work" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">View all</a>
-        </div>
-        <div class="space-y-2">
-            @foreach (var task in vm.UrgentTasks)
-            {
-                <partial name="Shared/_UrgentTaskRow" model="task" />
-            }
-            @if (!vm.UrgentTasks.Any())
-            {
-                <p class="py-4 text-center text-xs text-slate-500">No urgent tasks.</p>
-            }
-        </div>
-    </div>
-    <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-        <h2 class="mb-3 text-base font-semibold text-slate-900">Recent activity</h2>
-        <div class="space-y-3">
-            @foreach (var item in vm.RecentActivity)
-            {
-                <partial name="Shared/_ActivityFeed" model="item" />
-            }
-            @if (!vm.RecentActivity.Any())
-            {
-                <p class="py-4 text-center text-xs text-slate-500">No recent activity.</p>
-            }
-        </div>
-    </div>
-</div>
-
-<div id="modal-root"></div>
+<partial name="/Views/Partials/_DashboardContent.cshtml" model="content" />
 
 @section Scripts {
     <script>
         window.nimbusBurndown = {
-            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(vm.Burndown.Labels)),
-            actual: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(vm.Burndown.Actual)),
-            ideal: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(vm.Burndown.Ideal))
+            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ViewModel.Burndown.Labels)),
+            actual: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ViewModel.Burndown.Actual)),
+            ideal: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ViewModel.Burndown.Ideal))
         };
     </script>
     <script src="~/js/burndown-chart.js" asp-append-version="true"></script>

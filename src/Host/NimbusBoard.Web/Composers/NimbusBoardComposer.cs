@@ -1,9 +1,11 @@
 using NimbusBoard.Application.Common.Interfaces;
+using Nimbus_Board.Notifications;
 using Nimbus_Board.Services;
 using NimbusBoard.Infrastructure;
 using NimbusBoard.Infrastructure.Services;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
+using Umbraco.Cms.Core.Notifications;
 
 namespace Nimbus_Board.Composers;
 
@@ -22,5 +24,6 @@ public class NimbusBoardComposer : IComposer
         builder.Services.AddScoped<IAppNotificationService, SignalRNotificationPublisher>();
         builder.Services.AddSignalR();
         builder.Services.AddRazorPages();
+        builder.AddNotificationAsyncHandler<UmbracoApplicationStartedNotification, HomeContentSeedNotificationHandler>();
     }
 }

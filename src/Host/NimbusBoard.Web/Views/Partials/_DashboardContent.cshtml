@@ -1,0 +1,84 @@
+@model Nimbus_Board.Models.DashboardContentModel
+@{
+    var vm = Model.Data;
+    var copy = Model.Copy;
+}
+
+<div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <div>
+        <h1 class="text-xl font-bold text-slate-900">@copy.GreetingPrefix, @vm.UserName</h1>
+        <p class="text-xs text-slate-500">@vm.Today.ToString("dddd, d MMMM")</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+        @foreach (var board in vm.BoardLinks)
+        {
+            <a href="/app/boards/@board.Id"
+               class="hidden rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 xl:inline-flex">
+                @board.Name
+            </a>
+        }
+        <button type="button" onclick="window.nimbusOpenSearch()"
+                class="hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-400 shadow-sm lg:flex lg:w-56">
+            <span>@copy.SearchPlaceholder</span>
+            <span class="ml-auto rounded border border-slate-200 px-1.5 text-xs text-slate-400">⌘K</span>
+        </button>
+        @if (vm.DefaultProjectId.HasValue)
+        {
+            <button type="button"
+                    hx-get="/app/issues/create?projectId=@vm.DefaultProjectId"
+                    hx-target="#modal-root"
+                    hx-swap="innerHTML"
+                    class="rounded-xl bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">@copy.NewIssueLabel</button>
+        }
+    </div>
+</div>
+
+<div class="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
+    <partial name="/Pages/App/Shared/_KpiCard.cshtml" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel(copy.KpiOpenIssues, vm.Stats.OpenIssues, "bg-violet-50", "text-violet-500", Nimbus_Board.Pages.App.Shared.KpiIcon.List))" />
+    <partial name="/Pages/App/Shared/_KpiCard.cshtml" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel(copy.KpiInProgress, vm.Stats.InProgress, "bg-sky-50", "text-sky-500", Nimbus_Board.Pages.App.Shared.KpiIcon.Progress))" />
+    <partial name="/Pages/App/Shared/_KpiCard.cshtml" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel(copy.KpiDoneThisSprint, vm.Stats.DoneThisSprint, "bg-emerald-50", "text-emerald-500", Nimbus_Board.Pages.App.Shared.KpiIcon.Done))" />
+    <partial name="/Pages/App/Shared/_KpiCard.cshtml" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel(copy.KpiOverdue, vm.Stats.Overdue, "bg-rose-50", "text-rose-500", Nimbus_Board.Pages.App.Shared.KpiIcon.Warning))" />
+    <partial name="/Pages/App/Shared/_KpiCard.cshtml" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel(copy.KpiUrgent, vm.Stats.Urgent, "bg-orange-50", "text-orange-500", Nimbus_Board.Pages.App.Shared.KpiIcon.Flame))" />
+</div>
+
+<div class="mb-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
+    @if (vm.ActiveSprint is not null)
+    {
+        <partial name="/Pages/App/Shared/_SprintMiniKanban.cshtml" model="vm.ActiveSprint" />
+    }
+    <partial name="/Pages/App/Shared/_BurndownChart.cshtml" model="vm.Burndown" />
+</div>
+
+<div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+    <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+        <div class="mb-3 flex items-center justify-between">
+            <h2 class="text-base font-semibold text-slate-900">@copy.SectionUrgentTasks</h2>
+            <a href="/app/my-work" class="text-xs font-medium text-indigo-600 hover:text-indigo-700">@copy.ViewAllLabel</a>
+        </div>
+        <div class="space-y-2">
+            @foreach (var task in vm.UrgentTasks)
+            {
+                <partial name="/Pages/App/Shared/_UrgentTaskRow.cshtml" model="task" />
+            }
+            @if (!vm.UrgentTasks.Any())
+            {
+                <p class="py-4 text-center text-xs text-slate-500">@copy.EmptyUrgentTasks</p>
+            }
+        </div>
+    </div>
+    <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+        <h2 class="mb-3 text-base font-semibold text-slate-900">@copy.SectionRecentActivity</h2>
+        <div class="space-y-3">
+            @foreach (var item in vm.RecentActivity)
+            {
+                <partial name="/Pages/App/Shared/_ActivityFeed.cshtml" model="item" />
+            }
+            @if (!vm.RecentActivity.Any())
+            {
+                <p class="py-4 text-center text-xs text-slate-500">@copy.EmptyRecentActivity</p>
+            }
+        </div>
+    </div>
+</div>
+
+<div id="modal-root"></div>
