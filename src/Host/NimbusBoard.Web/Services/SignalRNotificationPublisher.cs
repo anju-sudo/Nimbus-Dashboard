@@ -1,30 +1,36 @@
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
 using NimbusBoard.Application.Common.Interfaces;
-using NimbusBoard.Domain.Entities;
-using NimbusBoard.Infrastructure.Persistence;
-using NimbusBoard.Infrastructure.Services;
+using NimbusBoard.Domain.Enums;
+using NimbusBoard.Infrastructure.Notifications;
 using Nimbus_Board.Hubs;
 
 namespace Nimbus_Board.Services;
 
-public class SignalRNotificationPublisher(
-    NimbusBoardDbContext db,
-    IEmailSender emailSender,
-    IHubContext<NotificationHub> hub,
-    ILogger<NotificationPublisher> logger)
-    : NotificationPublisher(db, emailSender, logger)
+/// <summary>
+/// Host decorator over Infrastructure <see cref="NotificationPublisher"/> that pushes SignalR after persist.
+/// </summary>
+public sealed class SignalRNotificationPublisher(
+    NotificationPublisher inner,
+    IHubContext<NotificationHub> hub) : IAppNotificationService
 {
-    protected override async Task OnPublishedAsync(Notification notification, CancellationToken cancellationToken)
+    public async Task PublishAsync(
+        int recipientMemberId,
+        NotificationType type,
+        string message,
+        string? linkUrl = null,
+        Guid? issueId = null,
+        string? emailTo = null,
+        CancellationToken cancellationToken = default)
     {
-        await hub.Clients.Group($"member:{notification.RecipientMemberId}")
+        await inner.PublishAsync(recipientMemberId, type, message, linkUrl, issueId, emailTo, cancellationToken);
+
+        await hub.Clients.Group($"member:{recipientMemberId}")
             .SendAsync("notificationReceived", new
             {
-                id = notification.Id,
-                type = notification.Type.ToString(),
-                message = notification.Message,
-                linkUrl = notification.LinkUrl,
-                createdAt = notification.CreatedAt
+                type = type.ToString(),
+                message,
+                linkUrl,
+                createdAt = DateTime.UtcNow
             }, cancellationToken);
     }
 }

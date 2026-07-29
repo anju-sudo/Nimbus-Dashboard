@@ -1,9 +1,9 @@
 using NimbusBoard.Application.Common.Interfaces;
 using NimbusBoard.Domain.Entities;
 
-namespace NimbusBoard.Infrastructure.Services;
+namespace NimbusBoard.Infrastructure.Identity;
 
-public class IssueKeyFactory(INimbusBoardDbContext db) : IIssueKeyFactory
+public sealed class IssueKeyFactory(INimbusBoardDbContext db) : IIssueKeyFactory
 {
     public async Task<(int Number, string Key)> CreateNextKeyAsync(Project project, CancellationToken cancellationToken = default)
     {

@@ -4,14 +4,17 @@ using NimbusBoard.Domain.Entities;
 using NimbusBoard.Domain.Enums;
 using NimbusBoard.Infrastructure.Persistence;
 
-namespace NimbusBoard.Infrastructure.Services;
+namespace NimbusBoard.Infrastructure.Notifications;
 
-public class NotificationPublisher(
+/// <summary>
+/// Persists notifications and optionally emails. Host may decorate this with SignalR.
+/// </summary>
+public sealed class NotificationPublisher(
     NimbusBoardDbContext db,
     IEmailSender emailSender,
     ILogger<NotificationPublisher> logger) : IAppNotificationService
 {
-    public virtual async Task PublishAsync(
+    public async Task PublishAsync(
         int recipientMemberId,
         NotificationType type,
         string message,
@@ -44,12 +47,7 @@ public class NotificationPublisher(
                 logger.LogWarning(ex, "Failed to send email notification to {Email}", emailTo);
             }
         }
-
-        await OnPublishedAsync(notification, cancellationToken);
     }
-
-    protected virtual Task OnPublishedAsync(Notification notification, CancellationToken cancellationToken) =>
-        Task.CompletedTask;
 
     private static bool ShouldEmail(NotificationType type) =>
         type is NotificationType.Assigned or NotificationType.Mentioned or NotificationType.SprintStarted;

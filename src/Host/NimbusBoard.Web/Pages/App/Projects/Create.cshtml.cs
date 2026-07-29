@@ -1,12 +1,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NimbusBoard.Application.Common.Interfaces;
 using NimbusBoard.Application.Projects.Commands;
+using NimbusBoard.Application.Projects.Queries;
 
 namespace Nimbus_Board.Pages.App.Projects;
 
-public class CreateModel(IMediator mediator, INimbusBoardDbContext db) : AppPageModel
+public sealed class CreateModel(IMediator mediator) : AppPageModel
 {
     [BindProperty]
     public CreateProjectInput Input { get; set; } = new();
@@ -14,34 +13,21 @@ public class CreateModel(IMediator mediator, INimbusBoardDbContext db) : AppPage
     public async Task OnGetAsync()
     {
         await SetLayoutDataAsync("projects", "Create Project");
-        var workspace = await db.Workspaces.FirstOrDefaultAsync();
-        Input.WorkspaceId = workspace?.Id ?? Guid.Empty;
+        Input.WorkspaceId = await mediator.Send(new GetDefaultWorkspaceIdQuery());
     }
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (Input.WorkspaceId == Guid.Empty)
-        {
-            var workspace = await db.Workspaces.FirstOrDefaultAsync();
-            if (workspace is null)
-            {
-                var ws = new NimbusBoard.Domain.Entities.Workspace { Name = "Acme", Slug = "acme" };
-                db.Workspaces.Add(ws);
-                await db.SaveChangesAsync();
-                Input.WorkspaceId = ws.Id;
-            }
-            else
-            {
-                Input.WorkspaceId = workspace.Id;
-            }
-        }
+        var result = await mediator.Send(new CreateProjectCommand(
+            Input.Key,
+            Input.Name,
+            Input.Description,
+            Input.WorkspaceId));
 
-        var projectId = await mediator.Send(new CreateProjectCommand(Input.Key, Input.Name, Input.Description, Input.WorkspaceId));
-        var project = await db.Projects.FirstAsync(p => p.Id == projectId);
-        return Redirect($"/app/projects/{project.Key}");
+        return Redirect($"/app/projects/{result.Key}");
     }
 
-    public class CreateProjectInput
+    public sealed class CreateProjectInput
     {
         public string Key { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;

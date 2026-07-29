@@ -8,7 +8,7 @@ using NimbusBoard.Domain.Enums;
 
 namespace NimbusBoard.Application.Dashboard.Handlers;
 
-public class GetDashboardQueryHandler(INimbusBoardDbContext db, IBurndownService burndown)
+public sealed class GetDashboardQueryHandler(INimbusBoardDbContext db, IBurndownService burndown)
     : IRequestHandler<GetDashboardQuery, DashboardViewModel>
 {
     public async Task<DashboardViewModel> Handle(GetDashboardQuery request, CancellationToken cancellationToken)

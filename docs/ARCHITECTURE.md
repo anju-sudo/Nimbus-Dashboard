@@ -5,30 +5,40 @@ Nimbus Board follows a Clean Architecture-style layout under `src/`.
 ```text
 src/
   Domain/NimbusBoard.Domain
-    └── Entities + Enums (+ BaseEntity)
+    └── Entities + Enums (+ abstract BaseEntity)
 
   Core/NimbusBoard.Application
-    ├── *Commands / *Queries / Handlers   MediatR use cases
-    ├── Common (BurndownCalculator, IssueStatusStateMachine)
-    └── Interfaces (INimbusBoardDbContext, IBurndownService, IEmailSender, ...)
+    ├── Feature folders (Commands / Queries / Handlers / Models)
+    ├── Common (BurndownCalculator, IssueStatusStateMachine, ports)
+    └── Interfaces (INimbusBoardDbContext, IBurndownService, IEmailSender, …)
 
   Infrastructure/NimbusBoard.Infrastructure
-    ├── Persistence/NimbusBoardDbContext
-    └── Services (BurndownService, SmtpEmailSender, NotificationPublisher, IssueKeyFactory)
+    ├── Persistence/ (+ Seeding/)
+    ├── Storage/          LocalFileAttachmentStorage
+    ├── Email/            SmtpEmailSender + SmtpOptions
+    ├── Notifications/    NotificationPublisher (persist + email)
+    ├── Burndown/
+    └── Identity/         IssueKeyFactory
 
   Host/NimbusBoard.Web   (Umbraco entry + Presentation)
-    ├── Pages/App/*          Razor Pages UI + HTMX endpoints
-    ├── Hubs/NotificationHub SignalR
-    ├── Services/*           Host adapters (SignalR publisher, media storage)
-    └── Composers/*          DI wiring
-
-  Packaging/                 Publish / deploy notes
-
-tests/NimbusBoard.Application.Tests
-docs/                        ARCHITECTURE + API-FLOWS
+    ├── Pages/App/* + Views/*     Razor / CMS templates
+    ├── Hubs/NotificationHub      SignalR transport
+    ├── Services/*                Umbraco media + SignalR decorator only
+    ├── Notifications/*           Umbraco content-type seed handlers
+    ├── Models/*                  CMS presentation DTOs (DashboardCopy)
+    └── Composers/*               Host DI overrides
 ```
 
 **Dependency rule:** Host → Infrastructure → Core → Domain. Core never references Infrastructure or Host.
+
+## What belongs where
+
+| Concern | Layer |
+|---|---|
+| Entities, enums | Domain |
+| MediatR use cases, ports | Application (Core) |
+| EF, SMTP, local files, seed | Infrastructure |
+| Umbraco, Razor Pages, SignalR hub, CMS seed | Host |
 
 > Why no separate Presentation project? Umbraco owns the web pipeline. Razor Pages, hubs, and composers stay in Host so CMS and `/app` UI share one startup.
 
@@ -39,25 +49,32 @@ docs/                        ARCHITECTURE + API-FLOWS
 | Umbraco SQLite (`umbracoDbDSN`) | CMS, members, media library |
 | NimbusBoard SQLite (`NimbusBoard`) | Projects, issues, boards, sprints, notifications, activity |
 
-`NimbusBoardComposer` registers Infrastructure + SignalR + Razor Pages. On startup, `EnsureNimbusBoardDatabaseAsync()` creates/seeds the product DB.
+## Host adapter registration
+
+`NimbusBoardComposer` calls `AddNimbusBoardInfrastructure`, then overrides:
+
+- `IAttachmentStorage` → `UmbracoMediaAttachmentAdapter` (falls back to Infra `LocalFileAttachmentStorage`)
+- `IAppNotificationService` → `SignalRNotificationPublisher` decorating Infra `NotificationPublisher`
+- `AttachmentStorageOptions.RootPath` → `{WebRoot}/nimbus-uploads`
+
+Pages talk only to `IMediator` (plus Umbraco published content for CMS-editable dashboard labels on `/`).
 
 ## Cross-cutting services
 
 - **BurndownCalculator** — pure ideal/remaining math (unit-tested)
 - **BurndownService** — recalculates sprint points and upserts daily `BurndownSnapshot` rows
-- **IAppNotificationService** — persists `Notification`, optionally emails, then pushes SignalR (`SignalRNotificationPublisher` in Host)
+- **IAppNotificationService** — persists `Notification`, optionally emails; Host decorator adds SignalR
 - **IEmailSender / SmtpEmailSender** — SMTP when `Smtp:Enabled`, otherwise logs
 - **IssueKeyFactory** — `{ProjectKey}-{Counter}` (e.g. `NIM-105`)
 - **IssueStatusStateMachine** — validates status transitions on board moves
 
 ## UI composition
 
-- Shared layout: `Pages/App/Shared/_AppLayout.cshtml` (responsive sidebar, ⌘K search, SignalR client)
-- Dashboard aggregates via `GetDashboardQuery`
+- Shared layout: `Pages/App/Shared/_AppLayout.cshtml`
+- Home template (`Views/Home.cshtml`) renders the dashboard at `/` with CMS copy
 - Boards use Sortable.js → `MoveIssueCommand`
 - Comments/labels/attachments use HTMX partials
-- Issue assignee picker uses project `ProjectMember` list
 
 ## Auth model (demo)
 
-Pages currently operate as seeded member **Anjumol Babu** (`MemberId = 1`). Umbraco member auth is available for CMS; product pages use the seeded project member id for notifications and My Work.
+Pages currently operate as seeded member **Anjumol Babu** (`MemberId = 1`).

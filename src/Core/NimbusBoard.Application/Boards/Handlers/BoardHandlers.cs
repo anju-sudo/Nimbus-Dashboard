@@ -7,7 +7,7 @@ using NimbusBoard.Domain.Enums;
 
 namespace NimbusBoard.Application.Boards.Handlers;
 
-public class GetBoardsQueryHandler(INimbusBoardDbContext db)
+public sealed class GetBoardsQueryHandler(INimbusBoardDbContext db)
     : IRequestHandler<GetBoardsQuery, IReadOnlyList<BoardListItemViewModel>>
 {
     public async Task<IReadOnlyList<BoardListItemViewModel>> Handle(GetBoardsQuery request, CancellationToken cancellationToken)
@@ -29,7 +29,7 @@ public class GetBoardsQueryHandler(INimbusBoardDbContext db)
     }
 }
 
-public class GetBoardQueryHandler(INimbusBoardDbContext db)
+public sealed class GetBoardQueryHandler(INimbusBoardDbContext db)
     : IRequestHandler<GetBoardQuery, BoardViewModel?>
 {
     public async Task<BoardViewModel?> Handle(GetBoardQuery request, CancellationToken cancellationToken)

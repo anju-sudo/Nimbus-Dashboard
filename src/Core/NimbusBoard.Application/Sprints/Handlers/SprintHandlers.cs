@@ -10,7 +10,7 @@ using NimbusBoard.Domain.Enums;
 
 namespace NimbusBoard.Application.Sprints.Handlers;
 
-public class GetSprintsQueryHandler(INimbusBoardDbContext db) : IRequestHandler<GetSprintsQuery, IReadOnlyList<SprintListItemViewModel>>
+public sealed class GetSprintsQueryHandler(INimbusBoardDbContext db) : IRequestHandler<GetSprintsQuery, IReadOnlyList<SprintListItemViewModel>>
 {
     public async Task<IReadOnlyList<SprintListItemViewModel>> Handle(GetSprintsQuery request, CancellationToken cancellationToken)
     {
@@ -42,7 +42,7 @@ public class GetSprintsQueryHandler(INimbusBoardDbContext db) : IRequestHandler<
     }
 }
 
-public class GetSprintDetailQueryHandler(INimbusBoardDbContext db, IBurndownService burndown)
+public sealed class GetSprintDetailQueryHandler(INimbusBoardDbContext db, IBurndownService burndown)
     : IRequestHandler<GetSprintDetailQuery, SprintDetailViewModel?>
 {
     public async Task<SprintDetailViewModel?> Handle(GetSprintDetailQuery request, CancellationToken cancellationToken)
@@ -99,7 +99,7 @@ public class GetSprintDetailQueryHandler(INimbusBoardDbContext db, IBurndownServ
     };
 }
 
-public class GetSprintCreateFormQueryHandler(INimbusBoardDbContext db)
+public sealed class GetSprintCreateFormQueryHandler(INimbusBoardDbContext db)
     : IRequestHandler<GetSprintCreateFormQuery, SprintCreateFormViewModel>
 {
     public async Task<SprintCreateFormViewModel> Handle(GetSprintCreateFormQuery request, CancellationToken cancellationToken)
@@ -117,7 +117,7 @@ public class GetSprintCreateFormQueryHandler(INimbusBoardDbContext db)
     }
 }
 
-public class CreateSprintCommandHandler(INimbusBoardDbContext db) : IRequestHandler<CreateSprintCommand, Guid>
+public sealed class CreateSprintCommandHandler(INimbusBoardDbContext db) : IRequestHandler<CreateSprintCommand, Guid>
 {
     public async Task<Guid> Handle(CreateSprintCommand request, CancellationToken cancellationToken)
     {
@@ -145,7 +145,7 @@ public class CreateSprintCommandHandler(INimbusBoardDbContext db) : IRequestHand
     }
 }
 
-public class StartSprintCommandHandler(
+public sealed class StartSprintCommandHandler(
     INimbusBoardDbContext db,
     IBurndownService burndown,
     IAppNotificationService notifications) : IRequestHandler<StartSprintCommand, Unit>
@@ -208,7 +208,7 @@ public class StartSprintCommandHandler(
     }
 }
 
-public class CompleteSprintCommandHandler(INimbusBoardDbContext db) : IRequestHandler<CompleteSprintCommand, Unit>
+public sealed class CompleteSprintCommandHandler(INimbusBoardDbContext db) : IRequestHandler<CompleteSprintCommand, Unit>
 {
     public async Task<Unit> Handle(CompleteSprintCommand request, CancellationToken cancellationToken)
     {
@@ -232,7 +232,7 @@ public class CompleteSprintCommandHandler(INimbusBoardDbContext db) : IRequestHa
     }
 }
 
-public class AssignIssueToSprintCommandHandler(INimbusBoardDbContext db, IBurndownService burndown)
+public sealed class AssignIssueToSprintCommandHandler(INimbusBoardDbContext db, IBurndownService burndown)
     : IRequestHandler<AssignIssueToSprintCommand, Unit>
 {
     public async Task<Unit> Handle(AssignIssueToSprintCommand request, CancellationToken cancellationToken)

@@ -6,7 +6,7 @@ using NimbusBoard.Application.Search.Queries;
 
 namespace NimbusBoard.Application.Search.Handlers;
 
-public class SearchQueryHandler(INimbusBoardDbContext db) : IRequestHandler<SearchQuery, SearchResultsViewModel>
+public sealed class SearchQueryHandler(INimbusBoardDbContext db) : IRequestHandler<SearchQuery, SearchResultsViewModel>
 {
     public async Task<SearchResultsViewModel> Handle(SearchQuery request, CancellationToken cancellationToken)
     {

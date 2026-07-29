@@ -5,9 +5,9 @@ using NimbusBoard.Domain.Entities;
 using NimbusBoard.Domain.Enums;
 using NimbusBoard.Infrastructure.Persistence;
 
-namespace NimbusBoard.Infrastructure.Services;
+namespace NimbusBoard.Infrastructure.Burndown;
 
-public class BurndownService(NimbusBoardDbContext db) : IBurndownService
+public sealed class BurndownService(NimbusBoardDbContext db) : IBurndownService
 {
     public async Task RecalculateSprintPointsAsync(Guid sprintId, CancellationToken cancellationToken = default)
     {
@@ -83,7 +83,6 @@ public class BurndownService(NimbusBoardDbContext db) : IBurndownService
         var today = DateTime.UtcNow.Date;
         var snapshotCount = await db.BurndownSnapshots.CountAsync(s => s.SprintId == sprintId, cancellationToken);
 
-        // Backfill from sprint start when the chart has no history yet.
         if (snapshotCount == 0)
         {
             await RecalculateSprintPointsAsync(sprintId, cancellationToken);

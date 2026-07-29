@@ -1,4 +1,5 @@
 using NimbusBoard.Application.Common.Interfaces;
+using NimbusBoard.Infrastructure.Storage;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models;
@@ -10,9 +11,9 @@ using Umbraco.Extensions;
 namespace Nimbus_Board.Services;
 
 /// <summary>
-/// Stores issue attachments in Umbraco Media library.
+/// Stores issue attachments in Umbraco Media library, with local filesystem fallback.
 /// </summary>
-public class UmbracoMediaAttachmentAdapter(
+public sealed class UmbracoMediaAttachmentAdapter(
     IMediaService mediaService,
     MediaFileManager mediaFileManager,
     MediaUrlGeneratorCollection mediaUrlGenerators,
@@ -46,7 +47,11 @@ public class UmbracoMediaAttachmentAdapter(
         }
         catch
         {
-            fileStream.Position = 0;
+            if (fileStream.CanSeek)
+            {
+                fileStream.Position = 0;
+            }
+
             return await localFallback.SaveAsync(fileStream, fileName, cancellationToken);
         }
     }

@@ -10,7 +10,7 @@ using NimbusBoard.Domain.Enums;
 
 namespace NimbusBoard.Application.Projects.Handlers;
 
-public class GetProjectsQueryHandler(INimbusBoardDbContext db) : IRequestHandler<GetProjectsQuery, IReadOnlyList<ProjectListItemViewModel>>
+public sealed class GetProjectsQueryHandler(INimbusBoardDbContext db) : IRequestHandler<GetProjectsQuery, IReadOnlyList<ProjectListItemViewModel>>
 {
     public async Task<IReadOnlyList<ProjectListItemViewModel>> Handle(GetProjectsQuery request, CancellationToken cancellationToken)
     {
@@ -29,7 +29,7 @@ public class GetProjectsQueryHandler(INimbusBoardDbContext db) : IRequestHandler
     }
 }
 
-public class GetProjectByKeyQueryHandler(INimbusBoardDbContext db) : IRequestHandler<GetProjectByKeyQuery, ProjectDetailViewModel?>
+public sealed class GetProjectByKeyQueryHandler(INimbusBoardDbContext db) : IRequestHandler<GetProjectByKeyQuery, ProjectDetailViewModel?>
 {
     public async Task<ProjectDetailViewModel?> Handle(GetProjectByKeyQuery request, CancellationToken cancellationToken)
     {
@@ -72,13 +72,27 @@ public class GetProjectByKeyQueryHandler(INimbusBoardDbContext db) : IRequestHan
     }
 }
 
-public class CreateProjectCommandHandler(INimbusBoardDbContext db) : IRequestHandler<CreateProjectCommand, Guid>
+public sealed class CreateProjectCommandHandler(INimbusBoardDbContext db) : IRequestHandler<CreateProjectCommand, CreateProjectResult>
 {
-    public async Task<Guid> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
+    public async Task<CreateProjectResult> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
     {
+        var workspaceId = request.WorkspaceId;
+        if (workspaceId == Guid.Empty)
+        {
+            var workspace = await db.Workspaces.FirstOrDefaultAsync(cancellationToken);
+            if (workspace is null)
+            {
+                workspace = new Workspace { Name = "Acme", Slug = "acme" };
+                db.Workspaces.Add(workspace);
+                await db.SaveChangesAsync(cancellationToken);
+            }
+
+            workspaceId = workspace.Id;
+        }
+
         var project = new Project
         {
-            WorkspaceId = request.WorkspaceId,
+            WorkspaceId = workspaceId,
             Key = request.Key.ToUpperInvariant(),
             Name = request.Name,
             Description = request.Description
@@ -95,11 +109,28 @@ public class CreateProjectCommandHandler(INimbusBoardDbContext db) : IRequestHan
         db.Projects.Add(project);
         db.Boards.Add(board);
         await db.SaveChangesAsync(cancellationToken);
-        return project.Id;
+        return new CreateProjectResult(project.Id, project.Key);
     }
 }
 
-public class AddProjectMemberCommandHandler(INimbusBoardDbContext db) : IRequestHandler<AddProjectMemberCommand, Guid>
+public sealed class GetDefaultWorkspaceIdQueryHandler(INimbusBoardDbContext db) : IRequestHandler<GetDefaultWorkspaceIdQuery, Guid>
+{
+    public async Task<Guid> Handle(GetDefaultWorkspaceIdQuery request, CancellationToken cancellationToken)
+    {
+        var workspace = await db.Workspaces.FirstOrDefaultAsync(cancellationToken);
+        if (workspace is not null)
+        {
+            return workspace.Id;
+        }
+
+        workspace = new Workspace { Name = "Acme", Slug = "acme" };
+        db.Workspaces.Add(workspace);
+        await db.SaveChangesAsync(cancellationToken);
+        return workspace.Id;
+    }
+}
+
+public sealed class AddProjectMemberCommandHandler(INimbusBoardDbContext db) : IRequestHandler<AddProjectMemberCommand, Guid>
 {
     public async Task<Guid> Handle(AddProjectMemberCommand request, CancellationToken cancellationToken)
     {

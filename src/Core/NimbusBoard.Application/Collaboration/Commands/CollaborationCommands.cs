@@ -15,7 +15,8 @@ public record UploadAttachmentCommand(
     int UploadedByMemberId = 1,
     string UploadedByName = "Anjumol Babu") : IRequest<Guid>;
 
-public record DeleteAttachmentCommand(Guid AttachmentId) : IRequest<Unit>;
+/// <summary>Returns the parent issue key, or null when the attachment was not found.</summary>
+public record DeleteAttachmentCommand(Guid AttachmentId) : IRequest<string?>;
 
 public record CreateLabelCommand(
     Guid ProjectId,

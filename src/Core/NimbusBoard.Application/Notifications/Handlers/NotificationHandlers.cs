@@ -8,7 +8,7 @@ using NimbusBoard.Application.Notifications.Queries;
 
 namespace NimbusBoard.Application.Notifications.Handlers;
 
-public class GetNotificationsQueryHandler(INimbusBoardDbContext db)
+public sealed class GetNotificationsQueryHandler(INimbusBoardDbContext db)
     : IRequestHandler<GetNotificationsQuery, IReadOnlyList<NotificationItemViewModel>>
 {
     public async Task<IReadOnlyList<NotificationItemViewModel>> Handle(GetNotificationsQuery request, CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ public class GetNotificationsQueryHandler(INimbusBoardDbContext db)
     }
 }
 
-public class GetUnreadNotificationCountQueryHandler(INimbusBoardDbContext db)
+public sealed class GetUnreadNotificationCountQueryHandler(INimbusBoardDbContext db)
     : IRequestHandler<GetUnreadNotificationCountQuery, int>
 {
     public async Task<int> Handle(GetUnreadNotificationCountQuery request, CancellationToken cancellationToken)
@@ -43,7 +43,7 @@ public class GetUnreadNotificationCountQueryHandler(INimbusBoardDbContext db)
     }
 }
 
-public class MarkNotificationReadCommandHandler(INimbusBoardDbContext db)
+public sealed class MarkNotificationReadCommandHandler(INimbusBoardDbContext db)
     : IRequestHandler<MarkNotificationReadCommand, Unit>
 {
     public async Task<Unit> Handle(MarkNotificationReadCommand request, CancellationToken cancellationToken)
@@ -64,7 +64,7 @@ public class MarkNotificationReadCommandHandler(INimbusBoardDbContext db)
     }
 }
 
-public class MarkAllNotificationsReadCommandHandler(INimbusBoardDbContext db)
+public sealed class MarkAllNotificationsReadCommandHandler(INimbusBoardDbContext db)
     : IRequestHandler<MarkAllNotificationsReadCommand, Unit>
 {
     public async Task<Unit> Handle(MarkAllNotificationsReadCommand request, CancellationToken cancellationToken)

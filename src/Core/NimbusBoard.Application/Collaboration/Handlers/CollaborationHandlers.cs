@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NimbusBoard.Application.Collaboration.Commands;
 using NimbusBoard.Application.Collaboration.Models;
+using NimbusBoard.Application.Collaboration.Queries;
 using NimbusBoard.Application.Common;
 using NimbusBoard.Application.Common.Interfaces;
 using NimbusBoard.Domain.Entities;
@@ -9,7 +10,7 @@ using NimbusBoard.Domain.Enums;
 
 namespace NimbusBoard.Application.Collaboration.Handlers;
 
-public class AddCommentCommandHandler(
+public sealed class AddCommentCommandHandler(
     INimbusBoardDbContext db,
     IAppNotificationService notifications) : IRequestHandler<AddCommentCommand, Guid>
 {
@@ -55,7 +56,7 @@ public class AddCommentCommandHandler(
     }
 }
 
-public class UploadAttachmentCommandHandler(
+public sealed class UploadAttachmentCommandHandler(
     INimbusBoardDbContext db,
     IAttachmentStorage storage) : IRequestHandler<UploadAttachmentCommand, Guid>
 {
@@ -90,17 +91,22 @@ public class UploadAttachmentCommandHandler(
     }
 }
 
-public class DeleteAttachmentCommandHandler(
+public sealed class DeleteAttachmentCommandHandler(
     INimbusBoardDbContext db,
-    IAttachmentStorage storage) : IRequestHandler<DeleteAttachmentCommand, Unit>
+    IAttachmentStorage storage) : IRequestHandler<DeleteAttachmentCommand, string?>
 {
-    public async Task<Unit> Handle(DeleteAttachmentCommand request, CancellationToken cancellationToken)
+    public async Task<string?> Handle(DeleteAttachmentCommand request, CancellationToken cancellationToken)
     {
         var attachment = await db.Attachments
             .Include(a => a.Issue)
-            .FirstOrDefaultAsync(a => a.Id == request.AttachmentId, cancellationToken)
-            ?? throw new InvalidOperationException("Attachment not found.");
+            .FirstOrDefaultAsync(a => a.Id == request.AttachmentId, cancellationToken);
 
+        if (attachment is null)
+        {
+            return null;
+        }
+
+        var issueKey = attachment.Issue.Key;
         await storage.DeleteAsync(attachment.MediaId, cancellationToken);
         db.Attachments.Remove(attachment);
 
@@ -115,11 +121,11 @@ public class DeleteAttachmentCommandHandler(
         });
 
         await db.SaveChangesAsync(cancellationToken);
-        return Unit.Value;
+        return issueKey;
     }
 }
 
-public class CreateLabelCommandHandler(INimbusBoardDbContext db) : IRequestHandler<CreateLabelCommand, Guid>
+public sealed class CreateLabelCommandHandler(INimbusBoardDbContext db) : IRequestHandler<CreateLabelCommand, Guid>
 {
     public async Task<Guid> Handle(CreateLabelCommand request, CancellationToken cancellationToken)
     {
@@ -136,7 +142,7 @@ public class CreateLabelCommandHandler(INimbusBoardDbContext db) : IRequestHandl
     }
 }
 
-public class ToggleIssueLabelCommandHandler(INimbusBoardDbContext db) : IRequestHandler<ToggleIssueLabelCommand, bool>
+public sealed class ToggleIssueLabelCommandHandler(INimbusBoardDbContext db) : IRequestHandler<ToggleIssueLabelCommand, bool>
 {
     public async Task<bool> Handle(ToggleIssueLabelCommand request, CancellationToken cancellationToken)
     {
@@ -260,3 +266,34 @@ public static class CollaborationQueryHelper
         return string.Concat(parts.Take(2).Select(p => char.ToUpperInvariant(p[0])));
     }
 }
+
+public sealed class GetIssueCommentsQueryHandler(INimbusBoardDbContext db)
+    : IRequestHandler<GetIssueCommentsQuery, IReadOnlyList<CommentViewModel>?>
+{
+    public async Task<IReadOnlyList<CommentViewModel>?> Handle(GetIssueCommentsQuery request, CancellationToken cancellationToken)
+    {
+        var issue = await db.Issues.FirstOrDefaultAsync(i => i.Key == request.IssueKey, cancellationToken);
+        if (issue is null)
+        {
+            return null;
+        }
+
+        return await CollaborationQueryHelper.GetCommentsAsync(db, issue.Id, cancellationToken);
+    }
+}
+
+public sealed class GetIssueActivityQueryHandler(INimbusBoardDbContext db)
+    : IRequestHandler<GetIssueActivityQuery, IReadOnlyList<IssueActivityViewModel>?>
+{
+    public async Task<IReadOnlyList<IssueActivityViewModel>?> Handle(GetIssueActivityQuery request, CancellationToken cancellationToken)
+    {
+        var issue = await db.Issues.FirstOrDefaultAsync(i => i.Key == request.IssueKey, cancellationToken);
+        if (issue is null)
+        {
+            return null;
+        }
+
+        return await CollaborationQueryHelper.GetActivityAsync(db, issue.Id, cancellationToken);
+    }
+}
+

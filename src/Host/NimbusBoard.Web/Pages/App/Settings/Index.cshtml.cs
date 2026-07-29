@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using NimbusBoard.Application.Boards.Models;
 using NimbusBoard.Application.Boards.Queries;
 using NimbusBoard.Application.Common.Interfaces;
-using NimbusBoard.Infrastructure.Services;
+using NimbusBoard.Infrastructure.Email;
 
 namespace Nimbus_Board.Pages.App.Settings;
 

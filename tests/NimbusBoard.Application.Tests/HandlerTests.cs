@@ -6,7 +6,7 @@ using NimbusBoard.Application.Sprints.Handlers;
 using NimbusBoard.Domain.Entities;
 using NimbusBoard.Domain.Enums;
 using NimbusBoard.Infrastructure.Persistence;
-using NimbusBoard.Infrastructure.Services;
+using NimbusBoard.Infrastructure.Burndown;
 using NSubstitute;
 using Xunit;
 

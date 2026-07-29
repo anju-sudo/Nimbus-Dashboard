@@ -12,7 +12,7 @@ using NimbusBoard.Domain.Enums;
 
 namespace NimbusBoard.Application.Issues.Handlers;
 
-public class GetIssueByKeyQueryHandler(INimbusBoardDbContext db, IAttachmentStorage storage) : IRequestHandler<GetIssueByKeyQuery, IssueDetailViewModel?>
+public sealed class GetIssueByKeyQueryHandler(INimbusBoardDbContext db, IAttachmentStorage storage) : IRequestHandler<GetIssueByKeyQuery, IssueDetailViewModel?>
 {
     public async Task<IssueDetailViewModel?> Handle(GetIssueByKeyQuery request, CancellationToken cancellationToken)
     {
@@ -62,7 +62,7 @@ public class GetIssueByKeyQueryHandler(INimbusBoardDbContext db, IAttachmentStor
     };
 }
 
-public class GetMyWorkQueryHandler(INimbusBoardDbContext db) : IRequestHandler<GetMyWorkQuery, IReadOnlyList<IssueListItemViewModel>>
+public sealed class GetMyWorkQueryHandler(INimbusBoardDbContext db) : IRequestHandler<GetMyWorkQuery, IReadOnlyList<IssueListItemViewModel>>
 {
     public async Task<IReadOnlyList<IssueListItemViewModel>> Handle(GetMyWorkQuery request, CancellationToken cancellationToken)
     {
@@ -85,13 +85,39 @@ public class GetMyWorkQueryHandler(INimbusBoardDbContext db) : IRequestHandler<G
     }
 }
 
-public class CreateIssueCommandHandler(
+public sealed class GetIssueCreateFormQueryHandler(INimbusBoardDbContext db) : IRequestHandler<GetIssueCreateFormQuery, CreateIssueFormModel?>
+{
+    public async Task<CreateIssueFormModel?> Handle(GetIssueCreateFormQuery request, CancellationToken cancellationToken)
+    {
+        var project = await db.Projects.FirstOrDefaultAsync(p => p.Id == request.ProjectId, cancellationToken);
+        if (project is null)
+        {
+            return null;
+        }
+
+        var members = await db.ProjectMembers
+            .Where(m => m.ProjectId == request.ProjectId)
+            .OrderBy(m => m.DisplayName)
+            .ToListAsync(cancellationToken);
+
+        return new CreateIssueFormModel
+        {
+            ProjectId = request.ProjectId,
+            ProjectKey = project.Key,
+            BoardColumnId = request.BoardColumnId,
+            AssignableMembers = members.Select(MemberAvatarHelper.ToViewModel).ToList(),
+            AssigneeMemberId = 1
+        };
+    }
+}
+
+public sealed class CreateIssueCommandHandler(
     INimbusBoardDbContext db,
     IIssueKeyFactory keyFactory,
     IBurndownService burndown,
-    IAppNotificationService notifications) : IRequestHandler<CreateIssueCommand, string>
+    IAppNotificationService notifications) : IRequestHandler<CreateIssueCommand, CreateIssueResult>
 {
-    public async Task<string> Handle(CreateIssueCommand request, CancellationToken cancellationToken)
+    public async Task<CreateIssueResult> Handle(CreateIssueCommand request, CancellationToken cancellationToken)
     {
         var project = await db.Projects.FirstOrDefaultAsync(p => p.Id == request.ProjectId, cancellationToken)
             ?? throw new InvalidOperationException("Project not found.");
@@ -181,11 +207,11 @@ public class CreateIssueCommandHandler(
             await burndown.TakeSnapshotAsync(request.SprintId.Value, cancellationToken: cancellationToken);
         }
 
-        return key;
+        return new CreateIssueResult(key, column?.BoardId);
     }
 }
 
-public class UpdateIssueCommandHandler(
+public sealed class UpdateIssueCommandHandler(
     INimbusBoardDbContext db,
     IBurndownService burndown,
     IAppNotificationService notifications) : IRequestHandler<UpdateIssueCommand, Unit>
@@ -269,7 +295,7 @@ public class UpdateIssueCommandHandler(
     }
 }
 
-public class MoveIssueCommandHandler(
+public sealed class MoveIssueCommandHandler(
     INimbusBoardDbContext db,
     IBurndownService burndown,
     IAppNotificationService notifications) : IRequestHandler<MoveIssueCommand, Unit>

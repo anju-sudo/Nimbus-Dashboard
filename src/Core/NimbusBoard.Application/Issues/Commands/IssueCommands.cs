@@ -3,6 +3,8 @@ using NimbusBoard.Application.Issues.Models;
 
 namespace NimbusBoard.Application.Issues.Commands;
 
+public record CreateIssueResult(string Key, Guid? BoardId);
+
 public record CreateIssueCommand(
     Guid ProjectId,
     string Title,
@@ -13,7 +15,7 @@ public record CreateIssueCommand(
     Guid? SprintId,
     int? StoryPoints,
     DateTime? DueDate,
-    int? AssigneeMemberId = null) : IRequest<string>;
+    int? AssigneeMemberId = null) : IRequest<CreateIssueResult>;
 
 public record UpdateIssueCommand(
     string Key,

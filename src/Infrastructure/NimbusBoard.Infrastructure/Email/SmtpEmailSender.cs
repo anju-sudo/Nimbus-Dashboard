@@ -1,24 +1,12 @@
+using System.Net;
+using System.Net.Mail;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NimbusBoard.Application.Common.Interfaces;
-using System.Net;
-using System.Net.Mail;
 
-namespace NimbusBoard.Infrastructure.Services;
+namespace NimbusBoard.Infrastructure.Email;
 
-public class SmtpOptions
-{
-    public const string SectionName = "Smtp";
-    public bool Enabled { get; set; }
-    public string Host { get; set; } = "localhost";
-    public int Port { get; set; } = 25;
-    public string? User { get; set; }
-    public string? Password { get; set; }
-    public string From { get; set; } = "nimbus@localhost";
-    public bool UseSsl { get; set; }
-}
-
-public class SmtpEmailSender(IOptions<SmtpOptions> options, ILogger<SmtpEmailSender> logger) : IEmailSender
+public sealed class SmtpEmailSender(IOptions<SmtpOptions> options, ILogger<SmtpEmailSender> logger) : IEmailSender
 {
     private readonly SmtpOptions _options = options.Value;
 
