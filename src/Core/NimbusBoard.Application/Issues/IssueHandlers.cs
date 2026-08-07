@@ -30,6 +30,10 @@ public sealed class GetIssueByKeyQueryHandler(INimbusBoardDbContext db, IAttachm
         var vm = MapDetail(issue);
         vm.AssignableMembers = members.Select(MemberAvatarHelper.ToViewModel).ToList();
         vm.CurrentMemberId = 1;
+        vm.AvailableStatuses = Enum.GetValues<IssueStatus>()
+            .Where(s => IssueStatusStateMachine.CanTransition(issue.Status, s))
+            .Select(IssueStatusMapper.ToDisplayName)
+            .ToList();
         vm.Comments = await CollaborationQueryHelper.GetCommentsAsync(db, issue.Id, cancellationToken);
         vm.Attachments = await CollaborationQueryHelper.GetAttachmentsAsync(db, storage, issue.Id, cancellationToken);
         vm.Labels = await CollaborationQueryHelper.GetProjectLabelsAsync(db, issue.ProjectId, issue.Id, cancellationToken);
@@ -46,6 +50,7 @@ public sealed class GetIssueByKeyQueryHandler(INimbusBoardDbContext db, IAttachm
         Type = issue.Type.ToString(),
         Priority = issue.Priority.ToString(),
         Status = IssueStatusMapper.ToDisplayName(issue.Status),
+        StatusValue = issue.Status.ToString(),
         StoryPoints = issue.StoryPoints,
         DueDate = issue.DueDate,
         AssigneeMemberId = issue.AssigneeMemberId,
@@ -289,6 +294,98 @@ public sealed class UpdateIssueCommandHandler(
         }
 
         return Unit.Value;
+    }
+}
+
+public sealed class ChangeIssueStatusCommandHandler(
+    INimbusBoardDbContext db,
+    IBurndownService burndown,
+    IAppNotificationService notifications) : IRequestHandler<ChangeIssueStatusCommand, Unit>
+{
+    public async Task<Unit> Handle(ChangeIssueStatusCommand request, CancellationToken cancellationToken)
+    {
+        var issue = await db.Issues
+            .Include(i => i.BoardColumn)
+            .FirstOrDefaultAsync(i => i.Key == request.Key, cancellationToken)
+            ?? throw new InvalidOperationException("Issue not found.");
+
+        if (!TryParseStatus(request.Status, out var newStatus))
+        {
+            throw new InvalidOperationException($"Unknown status '{request.Status}'.");
+        }
+
+        IssueStatusStateMachine.EnsureCanTransition(issue.Status, newStatus);
+
+        if (issue.Status == newStatus)
+        {
+            return Unit.Value;
+        }
+
+        var previousStatus = issue.Status;
+        issue.Status = newStatus;
+        issue.UpdatedAt = DateTime.UtcNow;
+
+        // Keep Kanban column in sync when a matching column exists on the same board.
+        if (issue.BoardColumn is not null)
+        {
+            var boardId = issue.BoardColumn.BoardId;
+            var columns = await db.BoardColumns
+                .Where(c => c.BoardId == boardId)
+                .ToListAsync(cancellationToken);
+
+            var targetColumn = columns.FirstOrDefault(c =>
+                IssueStatusMapper.FromColumnName(c.Name) == newStatus);
+
+            if (targetColumn is not null)
+            {
+                issue.BoardColumnId = targetColumn.Id;
+            }
+        }
+
+        var display = IssueStatusMapper.ToDisplayName(newStatus);
+        db.ActivityLogs.Add(new ActivityLog
+        {
+            IssueId = issue.Id,
+            ProjectId = issue.ProjectId,
+            ActorMemberId = 1,
+            ActorName = "Anjumol Babu",
+            Action = "changed status",
+            Detail = $"{issue.Key}: {IssueStatusMapper.ToDisplayName(previousStatus)} → {display}"
+        });
+
+        await db.SaveChangesAsync(cancellationToken);
+
+        await notifications.PublishAsync(
+            issue.AssigneeMemberId ?? 1,
+            NotificationType.IssueMoved,
+            $"{issue.Key} moved to {display}",
+            $"/app/issues/{issue.Key}",
+            issue.Id,
+            cancellationToken: cancellationToken);
+
+        if (issue.SprintId.HasValue)
+        {
+            await burndown.RecalculateSprintPointsAsync(issue.SprintId.Value, cancellationToken);
+            await burndown.TakeSnapshotAsync(issue.SprintId.Value, cancellationToken: cancellationToken);
+        }
+
+        return Unit.Value;
+    }
+
+    private static bool TryParseStatus(string value, out IssueStatus status)
+    {
+        if (Enum.TryParse(value, true, out status))
+        {
+            return true;
+        }
+
+        status = IssueStatusMapper.FromColumnName(value);
+        // FromColumnName defaults unknown to ToDo — only accept known display names.
+        var known = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "Backlog", "To Do", "ToDo", "In Progress", "InProgress", "Review", "Done"
+        };
+        return known.Contains(value.Trim());
     }
 }
 

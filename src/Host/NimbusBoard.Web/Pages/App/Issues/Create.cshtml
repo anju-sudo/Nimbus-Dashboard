@@ -10,7 +10,7 @@
             <h2 class="text-lg font-semibold">Create issue</h2>
             <button type="button" onclick="this.closest('.fixed').remove()" class="text-slate-400">✕</button>
         </div>
-        <form method="post" class="space-y-4">
+        <form method="post" asp-page="/App/Issues/Create" class="space-y-4">
             <input type="hidden" asp-for="Input.ProjectId" />
             <input type="hidden" asp-for="Input.BoardColumnId" />
             <div>

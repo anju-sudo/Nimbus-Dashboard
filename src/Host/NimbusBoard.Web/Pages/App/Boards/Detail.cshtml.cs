@@ -17,4 +17,10 @@ public class DetailModel(IMediator mediator) : AppPageModel
         Board = await mediator.Send(new GetBoardQuery(Id));
         return Board is null ? NotFound() : Page();
     }
+
+    public async Task<IActionResult> OnPostDeleteAsync()
+    {
+        await mediator.Send(new DeleteBoardCommand(Id));
+        return RedirectToPage("./Index");
+    }
 }

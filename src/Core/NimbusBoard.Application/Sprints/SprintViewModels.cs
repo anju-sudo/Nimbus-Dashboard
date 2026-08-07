@@ -17,6 +17,7 @@ public class SprintListItemViewModel
     public int CompletedStoryPoints { get; set; }
     public int IssueCount { get; set; }
     public int DaysLeft { get; set; }
+    public string AccentClass { get; set; } = "bg-indigo-500";
 }
 
 public class SprintDetailViewModel

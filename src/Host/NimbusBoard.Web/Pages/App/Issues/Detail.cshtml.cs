@@ -36,4 +36,18 @@ public class DetailModel(IMediator mediator) : AppPageModel
         await mediator.Send(new UpdateIssueCommand(Key, title, description, type, priority, storyPoints, dueDate, assigneeMemberId));
         return Redirect($"/app/issues/{Key}");
     }
+
+    public async Task<IActionResult> OnPostChangeStatusAsync(string status)
+    {
+        try
+        {
+            await mediator.Send(new ChangeIssueStatusCommand(Key, status));
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or NimbusBoard.Domain.Exceptions.InvalidIssueStatusTransitionException)
+        {
+            TempData["StatusError"] = ex.Message;
+        }
+
+        return Redirect($"/app/issues/{Key}");
+    }
 }

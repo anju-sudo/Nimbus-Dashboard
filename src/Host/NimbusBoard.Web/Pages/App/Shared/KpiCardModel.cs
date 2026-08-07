@@ -2,6 +2,7 @@ namespace Nimbus_Board.Pages.App.Shared;
 
 public enum KpiIcon
 {
+    Folder,
     List,
     Progress,
     Done,

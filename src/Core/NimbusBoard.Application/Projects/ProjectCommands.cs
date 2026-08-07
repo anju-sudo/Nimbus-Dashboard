@@ -15,3 +15,5 @@ public record AddProjectMemberCommand(
     string DisplayName,
     string Initials,
     string Role) : IRequest<Guid>;
+
+public record DeleteProjectCommand(Guid ProjectId) : IRequest<Unit>;

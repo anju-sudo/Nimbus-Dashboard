@@ -1,20 +1,46 @@
 @page "/app/boards/{id:guid}"
 @model Nimbus_Board.Pages.App.Boards.DetailModel
 @{
-    var board = Model.Board!;
+    var board = Model.Board;
+    if (board is null)
+    {
+        return;
+    }
+
+    var defaultColumnId = board.Columns.FirstOrDefault()?.Id;
+    var createIssueUrl = defaultColumnId is Guid colId
+        ? $"/app/issues/create?projectId={board.ProjectId}&boardColumnId={colId}"
+        : $"/app/issues/create?projectId={board.ProjectId}";
 }
 
-<div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+<div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
     <div>
-        <a href="/app/boards" class="text-sm text-indigo-600">← Boards</a>
-        <h1 class="mt-2 text-2xl font-bold text-slate-900">@board.Name</h1>
-        <p class="text-sm text-slate-500">@board.ProjectKey · @board.ProjectName</p>
+        <a href="/app/boards" class="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-700">
+            <span aria-hidden="true">←</span> Boards
+        </a>
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+            <span class="rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">@board.ProjectKey</span>
+            <span class="text-xs text-slate-400">@board.ProjectName</span>
+        </div>
+        <h1 class="mt-2 text-2xl font-bold tracking-tight text-slate-900">@board.Name</h1>
+        <p class="mt-1 text-sm text-slate-500">Drag cards between columns to update status.</p>
     </div>
-    <button type="button"
-            hx-get="/app/issues/create?projectId=@board.ProjectId"
-            hx-target="#modal-root"
-            hx-swap="innerHTML"
-            class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">+ New Issue</button>
+    <div class="flex flex-wrap items-center gap-2">
+        <form method="post"
+              asp-page-handler="Delete"
+              class="m-0"
+              onsubmit="return confirm('Delete this board? Issues stay in the project and are only removed from the Kanban columns.');">
+            <button type="submit"
+                    class="rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50">
+                Delete board
+            </button>
+        </form>
+        <button type="button"
+                hx-get="@createIssueUrl"
+                hx-target="#modal-root"
+                hx-swap="innerHTML"
+                class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">+ New Issue</button>
+    </div>
 </div>
 
 <div class="flex gap-4 overflow-x-auto pb-4" id="kanban-board" data-board-id="@board.Id">

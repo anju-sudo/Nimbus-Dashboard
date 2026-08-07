@@ -20,6 +20,15 @@ public sealed class GetSprintsQueryHandler(INimbusBoardDbContext db) : IRequestH
 
         var sprints = await query.OrderByDescending(s => s.IsActive).ThenByDescending(s => s.StartDate).ToListAsync(cancellationToken);
         var today = DateTime.UtcNow.Date;
+        string[] accents =
+        [
+            "bg-indigo-500",
+            "bg-violet-500",
+            "bg-sky-500",
+            "bg-emerald-500",
+            "bg-amber-500",
+            "bg-rose-500"
+        ];
 
         return sprints.Select(s => new SprintListItemViewModel
         {
@@ -35,7 +44,8 @@ public sealed class GetSprintsQueryHandler(INimbusBoardDbContext db) : IRequestH
             TotalStoryPoints = s.TotalStoryPoints,
             CompletedStoryPoints = s.CompletedStoryPoints,
             IssueCount = s.Issues.Count,
-            DaysLeft = Math.Max(0, (s.EndDate.Date - today).Days)
+            DaysLeft = Math.Max(0, (s.EndDate.Date - today).Days),
+            AccentClass = accents[Math.Abs(s.Project.Key.GetHashCode()) % accents.Length]
         }).ToList();
     }
 }

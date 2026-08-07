@@ -26,6 +26,7 @@ public sealed class HomeContentSeedNotificationHandler(
         ("greetingPrefix", "Greeting prefix", "Good morning"),
         ("searchPlaceholder", "Search placeholder", "Search..."),
         ("newIssueLabel", "New issue button", "+ New Issue"),
+        ("kpiTotalProjects", "KPI · Projects", "Projects"),
         ("kpiOpenIssues", "KPI · Open issues", "Open issues"),
         ("kpiInProgress", "KPI · In progress", "In progress"),
         ("kpiDoneThisSprint", "KPI · Done this sprint", "Done this sprint"),

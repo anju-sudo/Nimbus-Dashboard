@@ -36,4 +36,8 @@ public class BoardListItemViewModel
     public string ProjectKey { get; set; } = string.Empty;
     public string ProjectName { get; set; } = string.Empty;
     public int IssueCount { get; set; }
+    public int OpenIssueCount { get; set; }
+    public int DoneIssueCount { get; set; }
+    public int ColumnCount { get; set; }
+    public string AccentClass { get; set; } = "bg-indigo-500";
 }

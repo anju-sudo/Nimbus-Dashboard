@@ -7,7 +7,10 @@ public class ProjectListItemViewModel
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public int OpenIssues { get; set; }
+    public int DoneIssues { get; set; }
+    public int BoardCount { get; set; }
     public int MemberCount { get; set; }
+    public string AccentClass { get; set; } = "bg-indigo-500";
 }
 
 public class ProjectDetailViewModel

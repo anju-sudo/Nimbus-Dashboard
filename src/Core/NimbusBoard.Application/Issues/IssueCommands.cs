@@ -27,6 +27,10 @@ public record UpdateIssueCommand(
     DateTime? DueDate,
     int? AssigneeMemberId) : IRequest<Unit>;
 
+public record ChangeIssueStatusCommand(
+    string Key,
+    string Status) : IRequest<Unit>;
+
 public record MoveIssueCommand(
     Guid IssueId,
     Guid BoardColumnId,

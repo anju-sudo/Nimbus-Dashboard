@@ -13,6 +13,7 @@ public sealed class DashboardCopy
     public string GreetingPrefix { get; init; } = "Good morning";
     public string SearchPlaceholder { get; init; } = "Search...";
     public string NewIssueLabel { get; init; } = "+ New Issue";
+    public string KpiTotalProjects { get; init; } = "Projects";
     public string KpiOpenIssues { get; init; } = "Open issues";
     public string KpiInProgress { get; init; } = "In progress";
     public string KpiDoneThisSprint { get; init; } = "Done this sprint";
@@ -40,6 +41,7 @@ public sealed class DashboardCopy
             GreetingPrefix = Text(content, "greetingPrefix", Defaults.GreetingPrefix),
             SearchPlaceholder = Text(content, "searchPlaceholder", Defaults.SearchPlaceholder),
             NewIssueLabel = Text(content, "newIssueLabel", Defaults.NewIssueLabel),
+            KpiTotalProjects = Text(content, "kpiTotalProjects", Defaults.KpiTotalProjects),
             KpiOpenIssues = Text(content, "kpiOpenIssues", Defaults.KpiOpenIssues),
             KpiInProgress = Text(content, "kpiInProgress", Defaults.KpiInProgress),
             KpiDoneThisSprint = Text(content, "kpiDoneThisSprint", Defaults.KpiDoneThisSprint),

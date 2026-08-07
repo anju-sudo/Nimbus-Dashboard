@@ -9,6 +9,8 @@ public sealed class CreateModel(IMediator mediator) : AppPageModel
     [BindProperty]
     public CreateProjectInput Input { get; set; } = new();
 
+    public string? ErrorMessage { get; private set; }
+
     public async Task OnGetAsync()
     {
         await SetLayoutDataAsync("projects", "Create Project");
@@ -17,13 +19,23 @@ public sealed class CreateModel(IMediator mediator) : AppPageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        var result = await mediator.Send(new CreateProjectCommand(
-            Input.Key,
-            Input.Name,
-            Input.Description,
-            Input.WorkspaceId));
+        await SetLayoutDataAsync("projects", "Create Project");
 
-        return Redirect($"/app/projects/{result.Key}");
+        try
+        {
+            var result = await mediator.Send(new CreateProjectCommand(
+                Input.Key,
+                Input.Name,
+                Input.Description,
+                Input.WorkspaceId));
+
+            return RedirectToPage("/App/Projects/Detail", new { key = result.Key });
+        }
+        catch (InvalidOperationException ex)
+        {
+            ErrorMessage = ex.Message;
+            return Page();
+        }
     }
 
     public sealed class CreateProjectInput

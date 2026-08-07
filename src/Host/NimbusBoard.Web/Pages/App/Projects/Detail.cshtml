@@ -1,7 +1,11 @@
 @page "/app/projects/{key}"
 @model Nimbus_Board.Pages.App.Projects.DetailModel
 @{
-    var p = Model.Project!;
+    var p = Model.Project;
+    if (p is null)
+    {
+        return;
+    }
 }
 
 <div class="mb-6">
@@ -12,11 +16,22 @@
             <h1 class="mt-2 text-2xl font-bold text-slate-900">@p.Name</h1>
             <p class="text-sm text-slate-500">@(p.Description ?? "No description")</p>
         </div>
-        <button type="button"
-                hx-get="/app/issues/create?projectId=@p.Id"
-                hx-target="#modal-root"
-                hx-swap="innerHTML"
-                class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">+ New Issue</button>
+        <div class="flex flex-wrap items-center gap-2">
+            <form method="post"
+                  asp-page-handler="Delete"
+                  class="m-0"
+                  onsubmit="return confirm('Delete project @p.Key? This permanently removes its boards, sprints, issues, and members.');">
+                <button type="submit"
+                        class="rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50">
+                    Delete project
+                </button>
+            </form>
+            <button type="button"
+                    hx-get="/app/issues/create?projectId=@p.Id"
+                    hx-target="#modal-root"
+                    hx-swap="innerHTML"
+                    class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">+ New Issue</button>
+        </div>
     </div>
 </div>
 

@@ -1,0 +1,59 @@
+@model Nimbus_Board.Models.DashboardSprintSlotModel
+@{
+    var next = Model.NextSprint;
+}
+
+<div class="flex h-full flex-col rounded-2xl border border-dashed border-indigo-200 bg-gradient-to-br from-indigo-50/80 via-white to-sky-50/60 p-5 shadow-sm">
+    <div class="mb-3 flex items-start justify-between gap-3">
+        <div>
+            <p class="text-[11px] font-semibold uppercase tracking-wide text-indigo-500">Sprint</p>
+            <h2 class="mt-1 text-base font-semibold text-slate-900">No active sprint</h2>
+        </div>
+        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+        </span>
+    </div>
+
+    @if (next is not null)
+    {
+        <p class="text-sm text-slate-600">
+            <span class="font-medium text-slate-900">@next.Name</span> is ready
+            (@next.StartDate.ToString("d MMM") – @next.EndDate.ToString("d MMM")).
+            @next.IssueCount issue@(next.IssueCount == 1 ? "" : "s") planned.
+        </p>
+        @if (!string.IsNullOrWhiteSpace(next.Goal))
+        {
+            <p class="mt-2 line-clamp-2 text-xs text-slate-500">@next.Goal</p>
+        }
+        <div class="mt-auto flex flex-wrap gap-2 pt-5">
+            <a href="/app/sprints/@next.Id"
+               class="inline-flex rounded-xl bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                Open &amp; start sprint
+            </a>
+            <a href="/app/sprints" class="inline-flex rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                All sprints
+            </a>
+        </div>
+    }
+    else
+    {
+        <p class="text-sm leading-relaxed text-slate-600">
+            Start a sprint to track progress here and unlock the burndown chart beside this card.
+        </p>
+        <ul class="mt-3 space-y-1.5 text-xs text-slate-500">
+            <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-indigo-400"></span> Plan issues into a sprint</li>
+            <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-indigo-400"></span> Start it to see live To Do / In Progress / Done</li>
+            <li class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-indigo-400"></span> Watch remaining work burn down</li>
+        </ul>
+        <div class="mt-auto flex flex-wrap gap-2 pt-5">
+            <a href="/app/sprints" class="inline-flex rounded-xl bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                Go to sprints
+            </a>
+            <a href="/app/boards" class="inline-flex rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                Browse boards
+            </a>
+        </div>
+    }
+</div>

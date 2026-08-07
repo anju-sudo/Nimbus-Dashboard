@@ -14,6 +14,36 @@
     <partial name="Shared/_LabelPicker" model="Model" />
 </div>
 
+<!-- Status (separate form so it can save immediately) -->
+<div class="mb-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+    <label class="mb-1.5 block text-sm font-medium text-slate-700">Status</label>
+    <form method="post"
+          asp-page="/App/Issues/Detail"
+          asp-page-handler="ChangeStatus"
+          asp-route-key="@Model.Key"
+          class="flex flex-wrap items-center gap-2">
+        <select name="status"
+                onchange="this.form.submit()"
+                class="min-w-[10rem] flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-800 outline-none ring-indigo-500/20 focus:border-indigo-400 focus:ring-4">
+            @foreach (var status in Model.AvailableStatuses)
+            {
+                if (status == Model.Status)
+                {
+                    <option value="@status" selected>@status</option>
+                }
+                else
+                {
+                    <option value="@status">@status</option>
+                }
+            }
+        </select>
+        <noscript>
+            <button type="submit" class="rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white">Update</button>
+        </noscript>
+    </form>
+    <p class="mt-1.5 text-xs text-slate-500">Pick a new status to update right away (e.g. In Progress or Done). Only allowed transitions are listed.</p>
+</div>
+
 <form method="post" asp-page="/App/Issues/Detail" asp-route-key="@Model.Key" class="mb-6 space-y-4" id="issue-edit-form">
     <div>
         <label class="mb-1 block text-sm font-medium">Title</label>
@@ -54,7 +84,7 @@
         </div>
     </div>
 
-    <!-- Assignee (Jira-style) -->
+    <!-- Assignee -->
     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
         <div class="mb-2 flex items-center justify-between">
             <label class="text-sm font-medium text-slate-700">Assignee</label>
@@ -91,9 +121,18 @@
             <option value="">Unassigned</option>
             @foreach (var member in Model.AssignableMembers)
             {
-                <option value="@member.MemberId" selected="@(Model.AssigneeMemberId == member.MemberId)">
-                    @member.DisplayName (@member.Initials) · @member.Role
-                </option>
+                if (Model.AssigneeMemberId == member.MemberId)
+                {
+                    <option value="@member.MemberId" selected>
+                        @member.DisplayName (@member.Initials) · @member.Role
+                    </option>
+                }
+                else
+                {
+                    <option value="@member.MemberId">
+                        @member.DisplayName (@member.Initials) · @member.Role
+                    </option>
+                }
             }
         </select>
         @if (Model.AssignableMembers.Any())

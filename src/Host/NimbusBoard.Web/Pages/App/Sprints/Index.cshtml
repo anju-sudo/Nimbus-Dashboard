@@ -1,46 +1,82 @@
 @page "/app/sprints"
 @model Nimbus_Board.Pages.App.Sprints.IndexModel
 
-<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+<div class="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
     <div>
-        <h1 class="text-2xl font-bold text-slate-900">Sprints</h1>
-        <p class="text-sm text-slate-500">Plan, start, and track sprint burndown</p>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Sprints</h1>
+        <p class="mt-1 max-w-xl text-sm text-slate-500">
+            Time-boxed delivery windows with burndown. Start a sprint to track remaining work day by day.
+            @Model.Sprints.Count sprint@(Model.Sprints.Count == 1 ? "" : "s") total.
+        </p>
     </div>
 </div>
 
-<div class="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-3">
-    <div class="xl:col-span-2 space-y-3">
+<div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+    <div class="space-y-4 xl:col-span-2">
         @if (!Model.Sprints.Any())
         {
-            <div class="rounded-2xl border border-slate-100 bg-white p-8 text-center text-sm text-slate-500 shadow-sm">
-                No sprints yet. Create one to get started.
+            <div class="rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-16 text-center">
+                <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                    </svg>
+                </div>
+                <h2 class="text-lg font-semibold text-slate-900">No sprints yet</h2>
+                <p class="mx-auto mt-1 max-w-sm text-sm text-slate-500">Create a sprint for a project, add issues, then start it to unlock burndown.</p>
             </div>
         }
         else
         {
             @foreach (var sprint in Model.Sprints)
             {
+                var ptsTotal = Math.Max(sprint.TotalStoryPoints, 0);
+                var donePct = ptsTotal == 0
+                    ? 0
+                    : (int)Math.Round(100.0 * sprint.CompletedStoryPoints / ptsTotal);
+                var keyBadge = sprint.ProjectKey.Length <= 3 ? sprint.ProjectKey : sprint.ProjectKey[..3];
+
                 <a href="/app/sprints/@sprint.Id"
-                   class="block rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:border-indigo-200 hover:shadow-md">
-                    <div class="flex items-start justify-between gap-4">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h2 class="text-lg font-semibold text-slate-900">@sprint.Name</h2>
-                                @if (sprint.IsActive)
-                                {
-                                    <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">Active</span>
-                                }
+                   class="group relative block overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md">
+                    <div class="absolute inset-y-0 left-0 w-1 @sprint.AccentClass"></div>
+                    <div class="p-5 pl-6">
+                        <div class="flex flex-wrap items-start justify-between gap-3">
+                            <div class="flex min-w-0 items-start gap-3">
+                                <span class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xs font-bold text-white @sprint.AccentClass">
+                                    @keyBadge
+                                </span>
+                                <div class="min-w-0">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <h2 class="truncate text-base font-semibold text-slate-900 group-hover:text-indigo-700">@sprint.Name</h2>
+                                        @if (sprint.IsActive)
+                                        {
+                                            <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">Planned</span>
+                                        }
+                                    </div>
+                                    <p class="mt-0.5 text-xs text-slate-500">@sprint.ProjectKey · @sprint.ProjectName</p>
+                                    @if (!string.IsNullOrWhiteSpace(sprint.Goal))
+                                    {
+                                        <p class="mt-2 line-clamp-2 text-sm text-slate-600">@sprint.Goal</p>
+                                    }
+                                </div>
                             </div>
-                            <p class="mt-1 text-sm text-slate-500">@sprint.ProjectKey · @sprint.ProjectName</p>
-                            @if (!string.IsNullOrWhiteSpace(sprint.Goal))
-                            {
-                                <p class="mt-2 text-sm text-slate-600">@sprint.Goal</p>
-                            }
+                            <div class="text-right text-xs text-slate-500">
+                                <p class="font-medium text-slate-700">@sprint.StartDate.ToString("MMM d") – @sprint.EndDate.ToString("MMM d")</p>
+                                <p class="mt-1">@sprint.DaysLeft day@(sprint.DaysLeft == 1 ? "" : "s") left</p>
+                            </div>
                         </div>
-                        <div class="text-right text-sm text-slate-500">
-                            <p>@sprint.StartDate.ToString("MMM d") – @sprint.EndDate.ToString("MMM d")</p>
-                            <p class="mt-1">@sprint.IssueCount issues · @sprint.DaysLeft days left</p>
-                            <p class="mt-1">@sprint.CompletedStoryPoints / @sprint.TotalStoryPoints pts</p>
+
+                        <div class="mt-4">
+                            <div class="mb-1.5 flex items-center justify-between text-xs text-slate-500">
+                                <span>@sprint.IssueCount issue@(sprint.IssueCount == 1 ? "" : "s") · @sprint.CompletedStoryPoints / @sprint.TotalStoryPoints pts</span>
+                                <span class="font-medium text-slate-700">@donePct%</span>
+                            </div>
+                            <div class="h-1.5 overflow-hidden rounded-full bg-slate-100">
+                                <div class="h-full rounded-full @sprint.AccentClass" style="width: @(donePct)%"></div>
+                            </div>
                         </div>
                     </div>
                 </a>
@@ -48,39 +84,72 @@
         }
     </div>
 
-    <div class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-        <h2 class="mb-4 text-lg font-semibold text-slate-900">Create sprint</h2>
-        <form method="post" asp-page-handler="Create" class="space-y-4">
-            <div>
-                <label class="mb-1 block text-xs font-medium text-slate-500">Project</label>
-                <select asp-for="Input.ProjectId" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm">
-                    @foreach (var project in Model.CreateForm.Projects)
-                    {
-                        <option value="@project.Id">@project.Key — @project.Name</option>
-                    }
-                </select>
+    <div class="h-fit rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm xl:sticky xl:top-6">
+        <div class="mb-1 flex items-center gap-2">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+            </span>
+            <h2 class="text-lg font-semibold text-slate-900">Create sprint</h2>
+        </div>
+        <p class="mb-4 text-xs text-slate-500">Pick a project and date range. You can add issues and start it from the sprint page.</p>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                @Model.ErrorMessage
             </div>
-            <div>
-                <label class="mb-1 block text-xs font-medium text-slate-500">Name</label>
-                <input asp-for="Input.Name" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="Sprint 15" />
+        }
+
+        @if (!Model.CreateForm.Projects.Any())
+        {
+            <div class="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center">
+                <p class="text-sm text-slate-600">Create a project first, then you can add sprints.</p>
+                <a href="/app/projects/new" class="mt-3 inline-flex text-sm font-medium text-indigo-600 hover:text-indigo-700">New project →</a>
             </div>
-            <div>
-                <label class="mb-1 block text-xs font-medium text-slate-500">Goal</label>
-                <input asp-for="Input.Goal" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="Optional goal" />
-            </div>
-            <div class="grid grid-cols-2 gap-3">
+        }
+        else
+        {
+            <form method="post" asp-page="/App/Sprints/Index" asp-page-handler="Create" class="space-y-4">
                 <div>
-                    <label class="mb-1 block text-xs font-medium text-slate-500">Start</label>
-                    <input asp-for="Input.StartDate" type="date" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                    <label asp-for="Input.ProjectId" class="mb-1.5 block text-xs font-medium text-slate-600">Project</label>
+                    <select asp-for="Input.ProjectId" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none ring-indigo-500/20 focus:border-indigo-400 focus:ring-4" required>
+                        @foreach (var project in Model.CreateForm.Projects)
+                        {
+                            if (Model.Input.ProjectId == project.Id)
+                            {
+                                <option value="@project.Id" selected>@project.Key — @project.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@project.Id">@project.Key — @project.Name</option>
+                            }
+                        }
+                    </select>
                 </div>
                 <div>
-                    <label class="mb-1 block text-xs font-medium text-slate-500">End</label>
-                    <input asp-for="Input.EndDate" type="date" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
+                    <label asp-for="Input.Name" class="mb-1.5 block text-xs font-medium text-slate-600">Name</label>
+                    <input asp-for="Input.Name" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none ring-indigo-500/20 focus:border-indigo-400 focus:ring-4" placeholder="Sprint 15" required />
                 </div>
-            </div>
-            <button type="submit" class="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
-                Create sprint
-            </button>
-        </form>
+                <div>
+                    <label asp-for="Input.Goal" class="mb-1.5 block text-xs font-medium text-slate-600">Goal <span class="font-normal text-slate-400">(optional)</span></label>
+                    <input asp-for="Input.Goal" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none ring-indigo-500/20 focus:border-indigo-400 focus:ring-4" placeholder="What should this sprint deliver?" />
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label asp-for="Input.StartDate" class="mb-1.5 block text-xs font-medium text-slate-600">Start</label>
+                        <input asp-for="Input.StartDate" type="date" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none ring-indigo-500/20 focus:border-indigo-400 focus:ring-4" required />
+                    </div>
+                    <div>
+                        <label asp-for="Input.EndDate" class="mb-1.5 block text-xs font-medium text-slate-600">End</label>
+                        <input asp-for="Input.EndDate" type="date" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none ring-indigo-500/20 focus:border-indigo-400 focus:ring-4" required />
+                    </div>
+                </div>
+                <button type="submit" class="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
+                    Create sprint
+                </button>
+            </form>
+        }
     </div>
 </div>

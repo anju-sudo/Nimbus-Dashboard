@@ -10,14 +10,26 @@ public class DashboardViewModel
     public DashboardStatsViewModel Stats { get; set; } = new();
     public IReadOnlyList<UrgentTaskViewModel> UrgentTasks { get; set; } = [];
     public SprintPreviewViewModel? ActiveSprint { get; set; }
+    public PlannedSprintViewModel? NextSprint { get; set; }
     public BurndownChartViewModel Burndown { get; set; } = new();
     public IReadOnlyList<ActivityItemViewModel> RecentActivity { get; set; } = [];
     public IReadOnlyList<BoardQuickLinkViewModel> BoardLinks { get; set; } = [];
     public Guid? DefaultProjectId { get; set; }
 }
 
+public class PlannedSprintViewModel
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Goal { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+    public int IssueCount { get; set; }
+}
+
 public class DashboardStatsViewModel
 {
+    public int TotalProjects { get; set; }
     public int OpenIssues { get; set; }
     public int InProgress { get; set; }
     public int DoneThisSprint { get; set; }

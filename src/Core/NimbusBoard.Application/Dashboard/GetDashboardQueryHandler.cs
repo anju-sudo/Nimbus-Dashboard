@@ -28,6 +28,29 @@ public sealed class GetDashboardQueryHandler(INimbusBoardDbContext db, IBurndown
             await burndown.EnsureTodaySnapshotAsync(activeSprint.Id, cancellationToken);
         }
 
+        PlannedSprintViewModel? nextSprint = null;
+        if (activeSprint is null)
+        {
+            var planned = await db.Sprints
+                .Include(s => s.Issues)
+                .Where(s => !s.IsActive)
+                .OrderBy(s => s.StartDate)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (planned is not null)
+            {
+                nextSprint = new PlannedSprintViewModel
+                {
+                    Id = planned.Id,
+                    Name = planned.Name,
+                    Goal = planned.Goal,
+                    StartDate = planned.StartDate,
+                    EndDate = planned.EndDate,
+                    IssueCount = planned.Issues.Count
+                };
+            }
+        }
+
         var workspace = await db.Workspaces.FirstOrDefaultAsync(cancellationToken);
         var defaultProject = await db.Projects.OrderBy(p => p.Name).FirstOrDefaultAsync(cancellationToken);
         var boards = await db.Boards.Take(3).ToListAsync(cancellationToken);
@@ -37,6 +60,7 @@ public sealed class GetDashboardQueryHandler(INimbusBoardDbContext db, IBurndown
             .ToListAsync(cancellationToken);
 
         var unread = await db.Notifications.CountAsync(n => !n.IsRead && n.RecipientMemberId == 1, cancellationToken);
+        var totalProjects = await db.Projects.CountAsync(cancellationToken);
 
         var openIssues = issues.Count(i => i.Status is not IssueStatus.Done);
         var inProgress = issues.Count(i => i.Status == IssueStatus.InProgress);
@@ -62,6 +86,7 @@ public sealed class GetDashboardQueryHandler(INimbusBoardDbContext db, IBurndown
             UnreadNotifications = unread,
             Stats = new DashboardStatsViewModel
             {
+                TotalProjects = totalProjects,
                 OpenIssues = openIssues,
                 InProgress = inProgress,
                 DoneThisSprint = doneThisSprint,
@@ -70,6 +95,7 @@ public sealed class GetDashboardQueryHandler(INimbusBoardDbContext db, IBurndown
             },
             UrgentTasks = urgentTasks,
             ActiveSprint = activeSprint is null ? null : MapSprintPreview(activeSprint),
+            NextSprint = nextSprint,
             Burndown = burndownChart,
             RecentActivity = activity.Select(a => new ActivityItemViewModel
             {

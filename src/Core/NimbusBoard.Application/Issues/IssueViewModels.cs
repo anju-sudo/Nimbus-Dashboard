@@ -12,6 +12,8 @@ public class IssueDetailViewModel
     public string Type { get; set; } = string.Empty;
     public string Priority { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
+    public string StatusValue { get; set; } = string.Empty;
+    public IReadOnlyList<string> AvailableStatuses { get; set; } = [];
     public int? StoryPoints { get; set; }
     public DateTime? DueDate { get; set; }
     public int? AssigneeMemberId { get; set; }

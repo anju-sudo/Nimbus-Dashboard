@@ -33,7 +33,8 @@
     </div>
 </div>
 
-<div class="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
+<div class="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
+    <partial name="/Pages/App/Shared/_KpiCard.cshtml" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel(copy.KpiTotalProjects, vm.Stats.TotalProjects, "bg-indigo-50", "text-indigo-500", Nimbus_Board.Pages.App.Shared.KpiIcon.Folder))" />
     <partial name="/Pages/App/Shared/_KpiCard.cshtml" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel(copy.KpiOpenIssues, vm.Stats.OpenIssues, "bg-violet-50", "text-violet-500", Nimbus_Board.Pages.App.Shared.KpiIcon.List))" />
     <partial name="/Pages/App/Shared/_KpiCard.cshtml" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel(copy.KpiInProgress, vm.Stats.InProgress, "bg-sky-50", "text-sky-500", Nimbus_Board.Pages.App.Shared.KpiIcon.Progress))" />
     <partial name="/Pages/App/Shared/_KpiCard.cshtml" model="@(new Nimbus_Board.Pages.App.Shared.KpiCardModel(copy.KpiDoneThisSprint, vm.Stats.DoneThisSprint, "bg-emerald-50", "text-emerald-500", Nimbus_Board.Pages.App.Shared.KpiIcon.Done))" />
@@ -45,6 +46,10 @@
     @if (vm.ActiveSprint is not null)
     {
         <partial name="/Pages/App/Shared/_SprintMiniKanban.cshtml" model="vm.ActiveSprint" />
+    }
+    else
+    {
+        <partial name="/Pages/App/Shared/_SprintEmptyState.cshtml" model="@(new Nimbus_Board.Models.DashboardSprintSlotModel { NextSprint = vm.NextSprint })" />
     }
     <partial name="/Pages/App/Shared/_BurndownChart.cshtml" model="vm.Burndown" />
 </div>
