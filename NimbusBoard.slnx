@@ -2,6 +2,7 @@
   <Folder Name="/docs/">
     <File Path="docs/ARCHITECTURE.md" />
     <File Path="docs/API-FLOWS.md" />
+    <File Path="docs/DEPLOYMENT.md" />
   </Folder>
   <Folder Name="/src/" />
   <Folder Name="/src/Core/">
@@ -15,9 +16,6 @@
   </Folder>
   <Folder Name="/src/Infrastructure/">
     <Project Path="src/Infrastructure/NimbusBoard.Infrastructure/NimbusBoard.Infrastructure.csproj" />
-  </Folder>
-  <Folder Name="/src/Packaging/">
-    <File Path="src/Packaging/README.md" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/NimbusBoard.Application.Tests/NimbusBoard.Application.Tests.csproj" />

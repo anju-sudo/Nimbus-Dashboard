@@ -1,13 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using NimbusBoard.Application;
-using NimbusBoard.Application.Common.Interfaces;
-using NimbusBoard.Infrastructure.Burndown;
-using NimbusBoard.Infrastructure.Email;
-using NimbusBoard.Infrastructure.Identity;
-using NimbusBoard.Infrastructure.Notifications;
+using NimbusBoard.Application.Common.Abstractions;
+using NimbusBoard.Infrastructure.Services;
 using NimbusBoard.Infrastructure.Persistence;
 using NimbusBoard.Infrastructure.Persistence.Seeding;
-using NimbusBoard.Infrastructure.Storage;
 using Microsoft.EntityFrameworkCore;
 
 namespace NimbusBoard.Infrastructure;

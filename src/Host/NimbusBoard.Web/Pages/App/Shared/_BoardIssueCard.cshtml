@@ -1,4 +1,4 @@
-@model NimbusBoard.Application.Boards.Models.BoardIssueCardViewModel
+@model NimbusBoard.Application.Boards.BoardIssueCardViewModel
 <div class="issue-card cursor-grab rounded-xl border border-slate-200 bg-white p-3 shadow-sm active:cursor-grabbing"
      data-issue-id="@Model.Id"
      hx-get="/app/issues/@Model.Key?partial=true"

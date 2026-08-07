@@ -1,4 +1,4 @@
-using NimbusBoard.Application.Dashboard.Models;
+using NimbusBoard.Application.Dashboard;
 
 namespace Nimbus_Board.Models;
 

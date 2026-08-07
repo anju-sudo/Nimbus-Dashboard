@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using NimbusBoard.Application.Issues.Commands;
+using NimbusBoard.Application.Issues;
 
 namespace Nimbus_Board.Pages.App.Issues;
 

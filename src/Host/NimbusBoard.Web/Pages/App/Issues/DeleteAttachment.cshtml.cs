@@ -1,8 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using NimbusBoard.Application.Collaboration.Commands;
-using NimbusBoard.Application.Issues.Queries;
+using NimbusBoard.Application.Collaboration;
+using NimbusBoard.Application.Issues;
 
 namespace Nimbus_Board.Pages.App.Issues;
 

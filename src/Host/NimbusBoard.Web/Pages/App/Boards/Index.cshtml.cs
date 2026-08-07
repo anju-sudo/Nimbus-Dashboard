@@ -1,6 +1,5 @@
 using MediatR;
-using NimbusBoard.Application.Boards.Models;
-using NimbusBoard.Application.Boards.Queries;
+using NimbusBoard.Application.Boards;
 
 namespace Nimbus_Board.Pages.App.Boards;
 

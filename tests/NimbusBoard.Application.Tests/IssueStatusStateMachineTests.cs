@@ -1,6 +1,7 @@
 using FluentAssertions;
-using NimbusBoard.Application.Common;
+using NimbusBoard.Application.Common.Utils;
 using NimbusBoard.Domain.Enums;
+using NimbusBoard.Domain.Exceptions;
 using Xunit;
 
 namespace NimbusBoard.Application.Tests;
@@ -22,6 +23,6 @@ public class IssueStatusStateMachineTests
     public void EnsureCanTransition_throws_for_illegal_move()
     {
         var act = () => IssueStatusStateMachine.EnsureCanTransition(IssueStatus.Backlog, IssueStatus.Done);
-        act.Should().Throw<InvalidOperationException>();
+        act.Should().Throw<InvalidIssueStatusTransitionException>();
     }
 }

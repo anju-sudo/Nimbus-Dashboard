@@ -6,13 +6,12 @@ Lightweight Jira alternative built on **Umbraco CMS**, **EF Core**, **MediatR**,
 
 ```text
 NimbusBoard.slnx
-docs/                          Architecture and API flow docs
+docs/                          Architecture, API flows, deployment
 src/
-  Domain/NimbusBoard.Domain            Entities + enums
-  Core/NimbusBoard.Application         MediatR use cases + interfaces
+  Domain/NimbusBoard.Domain            Entities, enums, domain exceptions
+  Core/NimbusBoard.Application         MediatR use cases + abstractions
   Infrastructure/NimbusBoard.Infrastructure   EF Core, SMTP, factories
   Host/NimbusBoard.Web                 Umbraco host + Razor Pages UI
-  Packaging/                           Publish / deploy notes
 tests/NimbusBoard.Application.Tests
 ```
 
@@ -78,7 +77,7 @@ dotnet test NimbusBoard.slnx
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — layering and Umbraco integration
 - [docs/API-FLOWS.md](docs/API-FLOWS.md) — primary request flows
-- [src/Packaging/README.md](src/Packaging/README.md) — publish notes
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — publish notes
 
 ## Screenshots
 

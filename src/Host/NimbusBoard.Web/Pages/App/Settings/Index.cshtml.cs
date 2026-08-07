@@ -1,9 +1,8 @@
 using MediatR;
 using Microsoft.Extensions.Options;
-using NimbusBoard.Application.Boards.Models;
-using NimbusBoard.Application.Boards.Queries;
-using NimbusBoard.Application.Common.Interfaces;
-using NimbusBoard.Infrastructure.Email;
+using NimbusBoard.Application.Boards;
+using NimbusBoard.Application.Common.Abstractions;
+using NimbusBoard.Infrastructure.Services;
 
 namespace Nimbus_Board.Pages.App.Settings;
 

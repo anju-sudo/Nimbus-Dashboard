@@ -1,6 +1,5 @@
 using MediatR;
-using NimbusBoard.Application.Search.Models;
-using NimbusBoard.Application.Search.Queries;
+using NimbusBoard.Application.Search;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Nimbus_Board.Pages.App;

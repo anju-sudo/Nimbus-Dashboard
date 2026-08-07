@@ -1,11 +1,11 @@
 using MediatR;
-using NimbusBoard.Application.Projects.Queries;
+using NimbusBoard.Application.Projects;
 
 namespace Nimbus_Board.Pages.App.Projects;
 
 public class IndexModel(IMediator mediator) : AppPageModel
 {
-    public IReadOnlyList<NimbusBoard.Application.Projects.Models.ProjectListItemViewModel> Projects { get; private set; } = [];
+    public IReadOnlyList<NimbusBoard.Application.Projects.ProjectListItemViewModel> Projects { get; private set; } = [];
 
     public async Task OnGetAsync()
     {

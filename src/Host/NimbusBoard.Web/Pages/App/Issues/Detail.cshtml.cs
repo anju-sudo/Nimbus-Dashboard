@@ -1,8 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using NimbusBoard.Application.Issues.Commands;
-using NimbusBoard.Application.Issues.Models;
-using NimbusBoard.Application.Issues.Queries;
+using NimbusBoard.Application.Issues;
 
 namespace Nimbus_Board.Pages.App.Issues;
 

@@ -1,9 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using NimbusBoard.Application.Notifications.Queries;
-using NimbusBoard.Application.Sprints.Commands;
-using NimbusBoard.Application.Sprints.Models;
-using NimbusBoard.Application.Sprints.Queries;
+using NimbusBoard.Application.Notifications;
+using NimbusBoard.Application.Sprints;
 
 namespace Nimbus_Board.Pages.App.Sprints;
 

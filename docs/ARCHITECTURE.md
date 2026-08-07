@@ -5,25 +5,25 @@ Nimbus Board follows a Clean Architecture-style layout under `src/`.
 ```text
 src/
   Domain/NimbusBoard.Domain
-    └── Entities + Enums (+ abstract BaseEntity)
+    ├── Entities + Enums (+ abstract BaseEntity)
+    └── Exceptions/          InvalidIssueStatusTransitionException, …
 
   Core/NimbusBoard.Application
-    ├── Feature folders (Commands / Queries / Handlers / Models)
-    ├── Common (BurndownCalculator, IssueStatusStateMachine, ports)
-    └── Interfaces (INimbusBoardDbContext, IBurndownService, IEmailSender, …)
+    ├── Feature folders (Issues, Boards, Sprints, …) — command/query/handler/model files at feature root
+    └── Common/
+        ├── Abstractions/     Ports (INimbusBoardDbContext, IBurndownService, …)
+        └── Utils/           Helpers (BurndownCalculator, IssueStatusStateMachine, …)
 
   Infrastructure/NimbusBoard.Infrastructure
-    ├── Persistence/ (+ Seeding/)
-    ├── Storage/          LocalFileAttachmentStorage
-    ├── Email/            SmtpEmailSender + SmtpOptions
-    ├── Notifications/    NotificationPublisher (persist + email)
-    ├── Burndown/
-    └── Identity/         IssueKeyFactory
+    ├── Persistence/
+    │   ├── Configurations/  IEntityTypeConfiguration<T> per entity
+    │   └── Seeding/
+    └── Services/            Burndown, email, issue keys, notifications, storage
 
   Host/NimbusBoard.Web   (Umbraco entry + Presentation)
     ├── Pages/App/* + Views/*     Razor / CMS templates
     ├── Hubs/NotificationHub      SignalR transport
-    ├── Services/*                Umbraco media + SignalR decorator only
+    ├── HostAdapters/*            Umbraco media + SignalR decorator only
     ├── Notifications/*           Umbraco content-type seed handlers
     ├── Models/*                  CMS presentation DTOs (DashboardCopy)
     └── Composers/*               Host DI overrides
@@ -35,7 +35,7 @@ src/
 
 | Concern | Layer |
 |---|---|
-| Entities, enums | Domain |
+| Entities, enums, domain exceptions | Domain |
 | MediatR use cases, ports | Application (Core) |
 | EF, SMTP, local files, seed | Infrastructure |
 | Umbraco, Razor Pages, SignalR hub, CMS seed | Host |
@@ -66,7 +66,7 @@ Pages talk only to `IMediator` (plus Umbraco published content for CMS-editable 
 - **IAppNotificationService** — persists `Notification`, optionally emails; Host decorator adds SignalR
 - **IEmailSender / SmtpEmailSender** — SMTP when `Smtp:Enabled`, otherwise logs
 - **IssueKeyFactory** — `{ProjectKey}-{Counter}` (e.g. `NIM-105`)
-- **IssueStatusStateMachine** — validates status transitions on board moves
+- **IssueStatusStateMachine** — validates status transitions on board moves (`InvalidIssueStatusTransitionException`)
 
 ## UI composition
 

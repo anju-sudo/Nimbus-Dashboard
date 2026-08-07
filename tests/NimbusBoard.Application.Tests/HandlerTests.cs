@@ -1,12 +1,11 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using NimbusBoard.Application.Common.Interfaces;
-using NimbusBoard.Application.Sprints.Commands;
-using NimbusBoard.Application.Sprints.Handlers;
+using NimbusBoard.Application.Common.Abstractions;
+using NimbusBoard.Application.Sprints;
 using NimbusBoard.Domain.Entities;
 using NimbusBoard.Domain.Enums;
 using NimbusBoard.Infrastructure.Persistence;
-using NimbusBoard.Infrastructure.Burndown;
+using NimbusBoard.Infrastructure.Services;
 using NSubstitute;
 using Xunit;
 
@@ -115,9 +114,9 @@ public class MoveIssueCommandHandlerTests
 
         var notifications = Substitute.For<IAppNotificationService>();
         var burndown = new BurndownService(db);
-        var handler = new Application.Issues.Handlers.MoveIssueCommandHandler(db, burndown, notifications);
+        var handler = new Application.Issues.MoveIssueCommandHandler(db, burndown, notifications);
 
-        await handler.Handle(new Application.Issues.Commands.MoveIssueCommand(issue.Id, done.Id), CancellationToken.None);
+        await handler.Handle(new Application.Issues.MoveIssueCommand(issue.Id, done.Id), CancellationToken.None);
 
         var updated = await db.Issues.SingleAsync(i => i.Id == issue.Id);
         updated.Status.Should().Be(IssueStatus.Done);

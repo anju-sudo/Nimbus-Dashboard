@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using NimbusBoard.Application.Common.Interfaces;
-using NimbusBoard.Application.Dashboard.Models;
+using NimbusBoard.Application.Common.Abstractions;
+using NimbusBoard.Application.Dashboard;
 
 namespace NimbusBoard.Application.Sprints;
 

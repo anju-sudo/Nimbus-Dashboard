@@ -1,8 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Nimbus_Board.Models;
-using NimbusBoard.Application.Dashboard.Models;
-using NimbusBoard.Application.Dashboard.Queries;
+using NimbusBoard.Application.Dashboard;
 using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Services.Navigation;
 

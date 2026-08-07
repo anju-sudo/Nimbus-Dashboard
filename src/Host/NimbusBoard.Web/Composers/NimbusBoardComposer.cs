@@ -1,13 +1,11 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using NimbusBoard.Application.Common.Interfaces;
+using NimbusBoard.Application.Common.Abstractions;
 using Nimbus_Board.Hubs;
 using Nimbus_Board.Notifications;
-using Nimbus_Board.Services;
+using Nimbus_Board.HostAdapters;
 using NimbusBoard.Infrastructure;
-using NimbusBoard.Infrastructure.Email;
-using NimbusBoard.Infrastructure.Notifications;
-using NimbusBoard.Infrastructure.Storage;
+using NimbusBoard.Infrastructure.Services;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Notifications;

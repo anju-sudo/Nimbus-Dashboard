@@ -1,8 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using NimbusBoard.Application.Projects.Commands;
-using NimbusBoard.Application.Projects.Models;
-using NimbusBoard.Application.Projects.Queries;
+using NimbusBoard.Application.Projects;
 
 namespace Nimbus_Board.Pages.App.Projects;
 

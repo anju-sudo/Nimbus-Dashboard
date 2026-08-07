@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
-using NimbusBoard.Application.Notifications.Queries;
+using NimbusBoard.Application.Notifications;
 
 namespace Nimbus_Board.Pages.App;
 

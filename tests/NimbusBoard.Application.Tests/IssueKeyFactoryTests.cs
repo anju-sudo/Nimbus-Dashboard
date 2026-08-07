@@ -2,7 +2,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using NimbusBoard.Domain.Entities;
 using NimbusBoard.Infrastructure.Persistence;
-using NimbusBoard.Infrastructure.Identity;
+using NimbusBoard.Infrastructure.Services;
 using Xunit;
 
 namespace NimbusBoard.Application.Tests;

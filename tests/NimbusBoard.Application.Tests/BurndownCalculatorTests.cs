@@ -1,5 +1,5 @@
 using FluentAssertions;
-using NimbusBoard.Application.Common;
+using NimbusBoard.Application.Common.Utils;
 using Xunit;
 
 namespace NimbusBoard.Application.Tests;
